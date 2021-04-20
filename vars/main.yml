@@ -1,0 +1,5 @@
+---
+
+virtualenv_path: "{{ openwisp2_wireguard_directory }}/env"
+openwisp_group: "openwisp"
+openwisp_user: "openwisp"

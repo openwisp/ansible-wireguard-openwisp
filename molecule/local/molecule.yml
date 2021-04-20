@@ -1,0 +1,62 @@
+---
+
+driver:
+  name: docker
+lint: |
+  set -e
+  yamllint . || true
+  ansible-lint || true
+platforms:
+  - name: "openwisp2-ubuntu2004"
+    image: "geerlingguy/docker-ubuntu2004-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+  - name: "openwisp2-ubuntu1804"
+    image: "geerlingguy/docker-ubuntu1804-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+  - name: "openwisp2-debian10"
+    image: "geerlingguy/docker-debian10-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+  - name: "openwisp2-centos7"
+    image: "geerlingguy/docker-centos7-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+  - name: "openwisp2-centos8"
+    image: "geerlingguy/docker-centos8-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+# TODO: Add platforms for RHEL 7 and 8
+provisioner:
+  name: ansible
+  env:
+    MOLECULE_NO_LOG: false
+  playbooks:
+    converge: ../resources/${MOLECULE_PLAYBOOK:-converge.yml}
+    verify: ../resources/verify.yml
+  config_options:
+    defaults:
+      stdout_callback: yaml
+      bin_ansible_callbacks: true
+  inventory:
+    host_vars:
+      openwisp2-centos7:
+        ansible_python_interpreter: "/usr/bin/python2"
+verifier:
+  name: ansible

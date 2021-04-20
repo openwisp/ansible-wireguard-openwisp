@@ -1,0 +1,74 @@
+---
+
+name: Ansible WireGuard OpenWISP CI Build
+
+on:             # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build ${{ matrix.distro }}
+    runs-on: ubuntu-20.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: ubuntu1804
+            ansible_interpreter: /usr/bin/python3
+          - distro: ubuntu2004
+            ansible_interpreter: /usr/bin/python3
+          - distro: debian10
+            ansible_interpreter: /usr/bin/python3
+          - distro: centos7
+            ansible_interpreter: /usr/bin/python2
+          - distro: centos8
+            ansible_interpreter: /usr/bin/python3
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install python dependencies
+        run: |
+          pip install molecule[docker,ansible] yamllint ansible-lint docker openwisp-utils[qa]
+
+      - name: QA checks
+        run: |
+          openwisp-qa-check --skip-isort --skip-flake8 --skip-checkmigrations --skip-black
+
+      - name: Tests
+        run: molecule test
+        env:
+          ROLE_NAME: openwisp2
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: ${{ matrix.distro }}
+          ANSIBLE_PYTHON_INTERPRETER: ${{ matrix.ansible_interpreter }}
+
+  import:
+    name: Update imports on Ansible Galaxy
+    runs-on: ubuntu-20.04
+    container: python:3-slim
+    needs:
+      - build
+
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    steps:
+      - name: Install ansible
+        run: pip install ansible
+
+      - name: Update imports on Ansible Galaxy
+        run: |
+          ansible-galaxy role import --api-key ${{ secrets.GALAXY_TOKEN }} openwisp ansible-openwisp2

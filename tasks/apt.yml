@@ -1,0 +1,78 @@
+---
+
+- name: "[Debian/Ubuntu] Update APT package cache"
+  apt:
+    update_cache: true
+  changed_when: false
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+
+- name: "[Debian] Enable backports repository"
+  apt_repository:
+    repo: 'deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main'
+    state: present
+    update_cache: true
+  when: ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 11
+
+- name: "[Debian/Ubuntu] Install system packages"
+  apt:
+    name:
+      - supervisor
+      - openssl
+      - libssl-dev
+      - libffi-dev
+      - build-essential
+      - python3
+      - cron
+      - network-manager
+      - wireguard
+    state: latest
+  ignore_errors: true
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+
+- name: "[Debian/Ubuntu] Install acl if acting as non-root user"
+  apt: name=acl
+  when: ansible_user is not defined or ansible_user != 'root'
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+  ignore_errors: true
+
+- name: "[Debian/Ubuntu] Ensure supervisor is started"
+  service:
+    name: supervisor
+    state: started
+    enabled: true
+
+- name: "[Debian/Ubuntu] Install python3 packages"
+  apt:
+    name:
+      - python3-pip
+      - python3-dev
+      - python3-virtualenv
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+
+- name: "[Debian/Ubuntu] Check virtualenv"
+  block:
+    - name: "[Debian/Ubuntu] Check virtualenv executable path"
+      command: which virtualenv
+      register: virtualenv_output
+      changed_when: false
+    - name: "[Debian/Ubuntu] Test virtualenv executable path not empty"
+      fail:
+      when: virtualenv_output | length == 0
+      changed_when: false
+  rescue:
+    - name: Install virtualenv system package
+      apt:
+        name: virtualenv
+        state: latest

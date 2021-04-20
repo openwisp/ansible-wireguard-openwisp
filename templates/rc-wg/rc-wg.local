@@ -1,0 +1,2 @@
+#!/bin/bash
+{{ openwisp2_wireguard_directory }}/update_wireguard.sh bring_up_interface
