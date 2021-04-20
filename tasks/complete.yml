@@ -1,0 +1,9 @@
+---
+
+- name: Change superuser password hint
+  debug:
+    msg: |
+      Webhook endpoint: https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}
+      Auth Token: {{ openwisp2_wireguard_flask_key }}"
+  tags:
+    - molecule-idempotence-notest

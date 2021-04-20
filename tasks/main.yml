@@ -1,0 +1,29 @@
+---
+
+- name: Check required variables
+  fail: msg="Variable '{{ item }}' is not defined"
+  when: item is false
+  with_items: "{{ required_variables }}"
+
+- import_tasks: user_management.yml
+  tags: [openwisp2, user_management]
+
+- import_tasks: apt.yml
+  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+  tags: [openwisp2, apt]
+
+- import_tasks: yum.yml
+  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
+  tags: [openwisp2, yum]
+
+- import_tasks: pip.yml
+  tags: [openwisp2, pip]
+
+- import_tasks: flask.yml
+  tags: [openwisp2, flask]
+
+- import_tasks: uwsgi.yml
+  tags: [openwisp2, uwsgi]
+
+- import_tasks: complete.yml
+  tags: [openwisp2, complete]

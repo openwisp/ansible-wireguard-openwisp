@@ -1,0 +1,156 @@
+---
+
+- name: Add GPG keys for elrepo and epel-release
+  rpm_key: "{{ item }}"
+  with_items:
+    - {key: https://www.elrepo.org/RPM-GPG-KEY-elrepo.org, state: present}
+    - {key: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}", state: present}
+  tags: [molecule-idempotence-notest]
+- name: "[CentOS/RHEL] Install epel-release and elrepo-release"
+  yum:
+    name:
+      - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+      - "https://www.elrepo.org/elrepo-release-{{ ansible_distribution_major_version }}.el{{ ansible_distribution_major_version }}.elrepo.noarch.rpm"
+    state: latest
+  ignore_errors: true
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+  tags: [molecule-idempotence-notest]
+
+- name: "[CentOS/RHEL] Update YUM package cache"
+  yum:
+    update_cache: true
+  changed_when: false
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+
+- name: "[CentOS/RHEL] Install system packages"
+  yum:
+    name:
+      - python3
+      - openssl
+      - yum-utils
+      - openssl-devel
+      - libffi-devel
+      - gcc
+      - gcc-c++
+      - kernel-devel
+      - make
+      - cronie
+      - NetworkManager
+      - supervisor
+    state: latest
+  ignore_errors: true
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+
+- name: "[CentOS/RHEL] Install wireguard"
+  yum:
+    name:
+      - kmod-wireguard
+      - wireguard-tools
+    state: latest
+  ignore_errors: true
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+  tags:
+    - wireguard
+    - molecule-idempotence-notest
+
+- name: "[CentOS/RHEL] Check wireguard device type is available"
+  block:
+    - name: "[CentOS/RHEL] modprobe wireguard"
+      command: modprobe wireguard
+      register: modprobe_result
+      changed_when: false
+      tags: [wireguard]
+  rescue:
+    - name: CentOS/RHEL 7
+      block:
+        - name: Add jdoss/wireguard repository (CentOS/RHEL 7)
+          command: |
+            curl -o /etc/yum.repos.d/jdoss-wireguard-epel-7.repo \
+             https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+      when: ansible_distribution_major_version == "7"
+      tags: [molecule-idempotence-notest]
+    - name: CentOS/RHEL 8
+      block:
+        - name: Enable PowerTools (CentOS 8)
+          command: yum config-manager --set-enabled powertools
+          args:
+            warn: false
+          when: ansible_distribution == 'CentOS'
+        - name: Enable cloudready-builder (RHEL 8)
+          command: subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms
+          when: ansible_distribution == 'RedHat'
+        - name: Enable jdoss/wireguard repository
+          command: yum copr enable jdoss/wireguard -y
+      when: ansible_distribution_major_version == "8"
+      tags: [molecule-idempotence-notest]
+    - name: Remove kmod-wireguard and elrepo-release
+      yum:
+        name:
+          - kmod-wireguard
+          - elrepo-release
+        state: absent
+    - name: Remove GPG key for elrepo
+      rpm_key:
+        key: https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+        state: absent
+    - name: Reboot before installing wireguard-dkms
+      reboot:
+        connect_timeout: 60
+      tags: [notest]
+    - name: Install wireguard-dkms
+      yum:
+        name: wireguard-dkms
+        state: latest
+      retries: 5
+      delay: 10
+      register: result
+      until: result is success
+    - name: modprobe wireguard
+      command: modprobe wireguard
+      tags: [notest]
+  tags: [wireguard]
+
+- name: "[CentOS/RHEL] Install acl if acting as non-root user"
+  yum:
+    name: acl
+  when: ansible_user is not defined or ansible_user != 'root'
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success
+  ignore_errors: true
+
+- name: "[CentOS/RHEL] Ensure crond is started"
+  service:
+    name: crond
+    state: started
+    enabled: true
+
+- name: "[CentOS/RHEL] Ensure supervisord is started"
+  service:
+    name: supervisord
+    state: started
+    enabled: true
+
+- name: "[CentOS/RHEL] Install python3 packages"
+  yum:
+    name:
+      - python3-pip
+      - python3-devel
+      - python3-virtualenv
+  retries: 5
+  delay: 10
+  register: result
+  until: result is success

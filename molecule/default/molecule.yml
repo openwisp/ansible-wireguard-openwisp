@@ -1,0 +1,33 @@
+---
+
+driver:
+  name: docker
+lint: |
+  set -e
+  yamllint . || true
+  ansible-lint || true
+platforms:
+  - name: "${ROLE_NAME:-instance}-${MOLECULE_DISTRO}"
+    image: "geerlingguy/docker-${MOLECULE_DISTRO}-ansible:${tag:-latest}"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+provisioner:
+  name: ansible
+  env:
+    MOLECULE_NO_LOG: false
+  playbooks:
+    converge: ../resources/${MOLECULE_PLAYBOOK:-converge.yml}
+    verify: ../resources/verify.yml
+  config_options:
+    defaults:
+      stdout_callback: yaml
+      bin_ansible_callbacks: true
+  inventory:
+    host_vars:
+      "${ROLE_NAME:-instance}-${MOLECULE_DISTRO}":
+        ansible_python_interpreter: "${ANSIBLE_PYTHON_INTERPRETER}"
+verifier:
+  name: ansible

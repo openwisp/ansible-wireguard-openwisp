@@ -1,0 +1,106 @@
+#!/bin/bash
+set -e
+
+if [ "$(whoami)" != "{{ openwisp_user }}" ]; then
+    echo "Script should only be run by {{ openwisp_user }}. Exiting!"
+    exit 9
+fi
+
+BASE_URL="{{ openwisp2_wireguard_controller_url }}"
+VPN_UUID="{{ openwisp2_wireguard_vpn_uuid }}"
+VPN_KEY="{{ openwisp2_wireguard_vpn_key }}"
+# make sure this directory is writable by the user which calls the script
+CONF_DIR="{{ openwisp2_wireguard_directory | default('/etc/wireguard') }}"
+
+# do not modify these vars
+_VPN_URL_PATH="$BASE_URL/controller/vpn"
+_VPN_CHECKSUM_URL="$_VPN_URL_PATH/checksum/$VPN_UUID/?key=$VPN_KEY"
+_VPN_DOWNLOAD_URL="$_VPN_URL_PATH/download-config/$VPN_UUID/?key=$VPN_KEY"
+_WORKING_DIR="$CONF_DIR/.openwisp"
+_CHECKSUM_FILE="$_WORKING_DIR/checksum"
+_MANAGED_INTERFACE="$_WORKING_DIR/managed-interface"
+_APPLIED_CONF_DIR="$_WORKING_DIR/current-conf"
+_CONF_TAR="$_WORKING_DIR/conf.tar.gz"
+_CURL="curl -s {% if openwisp2_wireguard_curl_insecure %}--insecure{% endif %}"
+
+# workaround, will not be necessary in future iterations
+sleep 3
+
+mkdir -p $_WORKING_DIR
+mkdir -p $_APPLIED_CONF_DIR
+
+check_config() {
+    _latest_checksum=$($_CURL $_VPN_CHECKSUM_URL)
+
+    if [ -f "$_CHECKSUM_FILE" ]; then
+        _current_checksum=$(cat $_CHECKSUM_FILE)
+    else
+        _current_checksum=""
+    fi
+
+    if [ "$_current_checksum" != "$_latest_checksum" ]; then
+        echo "Configuration changed, downloading new configuration..."
+        update_config
+    fi
+}
+
+clean_old_interface() {
+    echo "Bringing down old wireguard interface $managed_interface_name"
+    for old_conf_file in $_APPLIED_CONF_DIR/*.conf; do
+        [ -e "$old_conf_file" ] || continue
+        sudo wg-quick down $old_conf_file
+    done
+    rm $_APPLIED_CONF_DIR/*.conf
+}
+
+create_new_interface() {
+    echo "Bringing up new wireguard interface $interface"
+    sudo wg-quick up $file
+}
+
+update_config() {
+    $($_CURL $_VPN_DOWNLOAD_URL > "$_CONF_TAR")
+    echo "Configuration downloaded, extracting it..."
+    tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
+
+    [ -e "$_MANAGED_INTERFACE" ] && managed_interface_name=$(cat "$_MANAGED_INTERFACE")
+
+    for file in $CONF_DIR/*.conf; do
+        [ -e "$file" ] || continue
+        filename=$(basename $file)
+        interface="${filename%.*}"
+
+        # There is no managed_interface
+        if [ -z ${managed_interface_name+x} ]; then
+            create_new_interface
+        # Current managed interface is not present in new configuration
+        elif [ "$managed_interface_name" != "$interface" ]; then
+            clean_old_interface
+            create_new_interface
+        else
+            # Update the configuration of current managed interface
+            echo "Reloading wireguard interface $interface with config file $file..."
+            wg_conf_filename="$filename-wg.conf"
+            umask 0117; sudo wg-quick strip ./"$filename" > "$wg_conf_filename"
+            sudo wg syncconf $interface ./"$wg_conf_filename"
+            rm "$wg_conf_filename"
+        fi
+        umask 0117; echo "$interface" > "$_MANAGED_INTERFACE"
+        umask 0117; mv -f "$file" "$_APPLIED_CONF_DIR/$filename"
+    done
+
+    # Save checksum of applied configuration
+    echo $_latest_checksum > $_CHECKSUM_FILE
+
+    test -f "$CONF_DIR/vxlan.json" && ./update_vxlan.py "$CONF_DIR/vxlan.json"
+}
+
+bring_up_interface() {
+    for conf_file in $_APPLIED_CONF_DIR/*.conf; do
+        [ -e "$conf_file" ] || continue
+        sudo wg-quick up $conf_file || true
+    done
+    exit 0
+}
+
+"$@"

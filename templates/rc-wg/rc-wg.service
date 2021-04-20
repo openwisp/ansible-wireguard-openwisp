@@ -1,0 +1,14 @@
+[Unit]
+Description=/etc/rc.d/rc-wg.local
+ConditionPathExists=/etc/rc.d/rc-wg.local
+
+[Service]
+Type=forking
+ExecStart=/etc/rc.d/rc-wg.local start
+TimeoutSec=0
+RemainAfterExit=yes
+User={{ openwisp_user }}
+Group={{ openwisp_group }}
+
+[Install]
+WantedBy=multi-user.target

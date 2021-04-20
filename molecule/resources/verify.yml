@@ -1,0 +1,33 @@
+---
+
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - ../vars/main.yml
+
+  tasks:
+    - name: Test Flask WireGuard Updater
+      block:
+        - name: Test with correct auth token
+          uri:
+            url: "https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}?key={{ openwisp2_wireguard_flask_key }}"
+            validate_certs: false
+            method: "POST"
+            status_code: [200]
+        - name: Test with wrong auth token
+          uri:
+            url: "https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}?key=wrong-auth-token"
+            validate_certs: false
+            method: "POST"
+            status_code: [403]
+      rescue:
+        - name: Get Flask log
+          command: "tail -n 500 {{ openwisp2_wireguard_directory }}/vpn_updater.log"
+          register: flask_log
+
+        - name: Show Flask log
+          debug:
+            var: flask_log
