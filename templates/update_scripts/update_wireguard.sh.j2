@@ -59,6 +59,9 @@ create_new_interface() {
 }
 
 update_config() {
+    # Set file permissions to 0660, otherwise wg will complain
+    # for having public configurations
+    umask 0117;
     $($_CURL $_VPN_DOWNLOAD_URL > "$_CONF_TAR")
     echo "Configuration downloaded, extracting it..."
     tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
@@ -81,18 +84,22 @@ update_config() {
             # Update the configuration of current managed interface
             echo "Reloading wireguard interface $interface with config file $file..."
             wg_conf_filename="$filename-wg.conf"
-            umask 0117; sudo wg-quick strip ./"$filename" > "$wg_conf_filename"
+            sudo wg-quick strip ./"$filename" > "$wg_conf_filename"
             sudo wg syncconf $interface ./"$wg_conf_filename"
             rm "$wg_conf_filename"
         fi
-        umask 0117; echo "$interface" > "$_MANAGED_INTERFACE"
-        umask 0117; mv -f "$file" "$_APPLIED_CONF_DIR/$filename"
+        echo "$interface" > "$_MANAGED_INTERFACE"
+        mv -f "$file" "$_APPLIED_CONF_DIR/$filename"
     done
 
     # Save checksum of applied configuration
     echo $_latest_checksum > $_CHECKSUM_FILE
 
-    test -f "$CONF_DIR/vxlan.json" && ./update_vxlan.py "$CONF_DIR/vxlan.json"
+    export VXLAN_IPV4_METHOD="{{ openwisp2_vxlan_ipv4_method }}" \
+        VXLAN_IPV6_METHOD="{{ openwisp2_vxlan_ipv6_method }}"
+    test -f "$CONF_DIR/vxlan.json" &&
+        ./update_vxlan.py "$CONF_DIR/vxlan.json" &&
+        mv -f "$CONF_DIR/vxlan.json" "$_APPLIED_CONF_DIR/vxlan.json"
 }
 
 bring_up_interface() {

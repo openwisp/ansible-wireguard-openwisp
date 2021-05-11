@@ -82,6 +82,10 @@ Below are listed all the variables you can customize (you may also want to take 
     openwisp2_path: /opt/openwisp2
     # virtualenv command for your remote distribution, usually set automcatically
     virtualenv_command: "virtualenv"
+
+    # Sets the ipv4.method of VXLAN connection, defaults to "link-local"
+    openwisp2_vxlan_ipv4_method: disabled
+    openwisp2_vxlan_ipv6_method: disabled
 ```
 
 Automatic SSL certificate

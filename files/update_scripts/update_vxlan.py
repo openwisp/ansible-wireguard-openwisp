@@ -3,6 +3,10 @@
 import json
 import subprocess
 import sys
+import os
+
+VXLAN_IPV4_METHOD = os.environ.get('VXLAN_IPV4_METHOD', 'link-local')
+VXLAN_IPV6_METHOD = os.environ.get('VXLAN_IPV6_METHOD', 'link-local')
 
 try:
     peer_file_path = sys.argv[1]
@@ -61,7 +65,7 @@ class Nmcli:
 
     @classmethod
     def get_connection(cls, connection):
-        output = cls._exec_command(f'nmcli connection show {connection}')
+        output = cls._exec_command(f'sudo nmcli connection show {connection}')
         data = {}
         lines = output.split('\n')
         for line in lines:
@@ -84,20 +88,20 @@ class Nmcli:
     @classmethod
     def add_connection(cls, ifname, vni, remote):
         return cls._exec_command(
-            f'nmcli connection add type vxlan ifname {ifname} '
+            f'sudo nmcli connection add type vxlan ifname {ifname} '
             f'id {vni} remote {remote} destination-port 4789 '
-            'ipv4.method link-local ipv6.method link-local'
+            f'ipv4.method {VXLAN_IPV4_METHOD} ipv6.method {VXLAN_IPV6_METHOD}'
         )
 
     @classmethod
     def edit_connection(cls, connection, vni, remote):
         return cls._exec_command(
-            f'nmcli connection modify {connection} vxlan.id {vni} vxlan.remote {remote}'
+            f'sudo nmcli connection modify {connection} vxlan.id {vni} vxlan.remote {remote}'
         )
 
     @classmethod
     def delete_connection(cls, connection):
-        return cls._exec_command(f'nmcli connection delete {connection}')
+        return cls._exec_command(f'sudo nmcli connection delete {connection}')
 
 
 local_peers = Nmcli.get_local_vxlan_peers()
