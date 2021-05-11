@@ -14,6 +14,9 @@ openwisp2_wireguard_flask_port: 8081
 openwisp2_wireguard_flask_host: 0.0.0.0
 openwisp2_wireguard_flask_endpoint: "/trigger-update"
 
+openwisp2_vxlan_ipv4_method: link-local
+openwisp2_vxlan_ipv6_method: link-local
+
 required_variables:
   - openwisp2_wireguard_controller_url
   - openwisp2_wireguard_vpn_uuid
