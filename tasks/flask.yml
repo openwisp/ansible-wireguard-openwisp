@@ -31,9 +31,20 @@
         group: "{{ openwisp_group }}"
         mode: 0755
     - name: "Create rc-wg.local"
-      template:
-        src: rc-wg/rc-wg.local
-        dest: /etc/rc.d/rc-wg.local
+      lineinfile:
+        path: /etc/rc.d/rc-wg.local
+        state: present
+        create: true
+        line: "#!/bin/bash"
+        insertbefore: BOF
+        mode: 0755
+        group: "{{ openwisp_group }}"
+    - name: Add WireGuard interface bring up command
+      lineinfile:
+        path: /etc/rc.d/rc-wg.local
+        state: present
+        create: true
+        line: "{{ openwisp2_wireguard_directory }}/update_wireguard.sh bring_up_interface # {{ openwisp2_wireguard_vpn_uuid }}"
         mode: 0755
         group: "{{ openwisp_group }}"
     - name: systemctl daemon-reload
@@ -57,7 +68,7 @@
 
 - name: Add wireguard_update.sh script to cron
   cron:
-    name: Run update wireguard periodically
+    name: Run update wireguard periodically {{ openwisp2_wireguard_vpn_uuid }}
     day: "*"
     hour: "*"
     minute: "*/5"
@@ -77,20 +88,20 @@
 
 - name: "[CentOS/RedHat] Set extension and path for supervisor configuration"
   set_fact:
-    supervisord_conf_extension: ".ini"
+    supervisord_conf_extension: "ini"
     supervisor_conf_path: "/etc/supervisord.d"
   when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
 
 - name: "[Ubuntu/Debian] Set extension and path for supervisor configuration"
   set_fact:
-    supervisord_conf_extension: ".conf"
+    supervisord_conf_extension: "conf"
     supervisor_conf_path: "/etc/supervisor/conf.d"
   when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
 
 - name: Supervisor flask config
   template:
     src: supervisor/vpn_updater.j2
-    dest: "{{ supervisor_conf_path }}/flask_vpn_updater.{{ supervisord_conf_extension }}"
+    dest: "{{ supervisor_conf_path }}/flask_vpn_updater_{{ openwisp2_wireguard_vpn_uuid }}.{{ supervisord_conf_extension }}"
     mode: 0744
   notify: reload supervisor
   tags: [flask]
