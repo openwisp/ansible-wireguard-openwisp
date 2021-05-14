@@ -1,6 +1,6 @@
 # ansible-wireguard-openwisp
 
-[![Build Status](https://github.com/openwisp/ansible-openwisp2/workflows/Ansible%20WireGuard%20OpenWISP2%20CI%20Build/badge.svg?branch=main)](https://github.com/openwisp/ansible-openwisp2/actions?query=workflow%3A%22Ansible+WireGuard+OpenWISP2+CI+Build%22)
+[![Build Status](https://github.com/openwisp/ansible-wireguard-openwisp/workflows/Ansible%20WireGuard%20OpenWISP%20CI%20Build/badge.svg?branch=main)](https://github.com/openwisp/ansible-wireguard-openwisp/actions?query=Ansible+WireGuard+OpenWISP+CI+Build)
 
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/openwisp/general)
 
