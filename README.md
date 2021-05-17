@@ -26,6 +26,9 @@ via `ansible-galaxy`:
 ansible-galaxy install git+https://github.com/openwisp/ansible-wireguard-openwisp.git
 ```
 
+**Note:** This role will not configure forwarding packets on your server.
+It leaves this task to the user to add/modify routes accordingly.
+
 Role variables
 ==============
 
