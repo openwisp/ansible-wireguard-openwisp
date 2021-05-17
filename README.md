@@ -26,6 +26,11 @@ via `ansible-galaxy`:
 ansible-galaxy install git+https://github.com/openwisp/ansible-wireguard-openwisp.git
 ```
 
+**NOTE:** This role **will not configure forwarding packets nor add static or dynamic routes** on your server.
+
+Since the exact way in which packets can be routed can vary depending on different factors and needs which can differ greatly from organization to organization, it's left out to the user to configure it according to their needs.
+[We may add a default routing/forwarding configuration in the future once we have more usage data, if you're interested in this, please let us know](https://github.com/openwisp/ansible-wireguard-openwisp/issues/8).
+
 Role variables
 ==============
 
