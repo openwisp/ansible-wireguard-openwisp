@@ -149,6 +149,56 @@ following example:
 Read the [documentation of `geerlingguy.certbot`](https://github.com/geerlingguy/ansible-role-certbot#readme)
 to learn more about configuration of certbot role.
 
+Setting up multiple WireGuard Interfaces
+========================================
+
+Using this role you can set up multiple WireGuard interfaces on the same
+machine that are managed by OpenWISP independently. You will have to
+ ensure that the following role variables are unique for each play:
+
+- `openwisp2_wireguard_directory`
+- `openwisp2_wireguard_flask_port`
+
+Below is an example playbook containing two plays for setting up multiple
+WireGuard interfaces.
+
+```yaml
+- name: Setup up first WireGuard interface
+  hosts:
+    - wireguard
+  become: "{{ become | default('yes') }}"
+  roles:
+    - ansible-wireguard-openwisp
+  vars:
+    openwisp2_wireguard_directory: "/opt/openwisp2/wireguard-1"
+    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
+    openwisp2_wireguard_vpn_uuid: "paste-vpn1-uuid-here"
+    openwisp2_wireguard_vpn_key: "paste-vpn1-key-here"
+    openwisp2_wireguard_flask_key: "paste-vpn1-endpoint-auth-token"
+    openwisp2_wireguard_flask_port: 8081
+
+- name: Setup second WireGuard interface
+  hosts:
+    - wireguard
+  become: "{{ become | default('yes') }}"
+  roles:
+    - ansible-wireguard-openwisp
+  vars:
+    openwisp2_wireguard_directory: "/opt/openwisp2/wireguard-2"
+    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
+    openwisp2_wireguard_vpn_uuid: "paste-vpn-2-uuid-here"
+    openwisp2_wireguard_vpn_key: "paste-vpn-2-key-here"
+    openwisp2_wireguard_flask_key: "paste-vpn-2-endpoint-auth-token"
+    openwisp2_wireguard_flask_port: 8082
+```
+
+Gotchas
+-------
+
+- While creating VPN server objects in OpenWISP, ensure that `interface name`
+  and `port` are unique for each VPN. Otherwise, the update scripts will
+  not work properly due to conflicts.
+
 How to run tests
 ----------------
 

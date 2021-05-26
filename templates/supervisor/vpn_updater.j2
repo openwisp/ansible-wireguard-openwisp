@@ -1,4 +1,4 @@
-[program:openwisp-flask-vpn-updater]
+[program:openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}]
 user=root
 directory={{ openwisp2_wireguard_directory }}
 command={{ openwisp2_wireguard_directory }}/env/bin/uwsgi uwsgi.ini
