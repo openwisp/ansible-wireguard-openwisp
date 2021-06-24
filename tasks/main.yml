@@ -6,24 +6,24 @@
   with_items: "{{ required_variables }}"
 
 - import_tasks: user_management.yml
-  tags: [openwisp2, user_management]
+  tags: [wireguard_openwisp, user_management]
 
 - import_tasks: apt.yml
   when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
-  tags: [openwisp2, apt]
+  tags: [wireguard_openwisp, apt]
 
 - import_tasks: yum.yml
   when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
-  tags: [openwisp2, yum]
+  tags: [wireguard_openwisp, yum]
 
 - import_tasks: pip.yml
-  tags: [openwisp2, pip]
+  tags: [wireguard_openwisp, pip]
 
 - import_tasks: flask.yml
-  tags: [openwisp2, flask]
+  tags: [wireguard_openwisp, flask]
 
 - import_tasks: uwsgi.yml
-  tags: [openwisp2, uwsgi]
+  tags: [wireguard_openwisp, uwsgi]
 
 - import_tasks: complete.yml
-  tags: [openwisp2, complete]
+  tags: [wireguard_openwisp, complete]
