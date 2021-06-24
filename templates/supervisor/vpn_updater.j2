@@ -1,11 +1,11 @@
 [program:openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}]
 user=root
-directory={{ openwisp2_wireguard_directory }}
-command={{ openwisp2_wireguard_directory }}/env/bin/uwsgi uwsgi.ini
+directory={{ openwisp2_wireguard_path }}
+command={{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini
 autostart=true
 autorestart=true
 stopsignal=INT
 redirect_stderr=true
-stdout_logfile={{ openwisp2_wireguard_directory }}/vpn_updater.log
+stdout_logfile={{ openwisp2_wireguard_path }}/vpn_updater.log
 stdout_logfile_maxbytes=5MB
 stdout_logfile_backups=3

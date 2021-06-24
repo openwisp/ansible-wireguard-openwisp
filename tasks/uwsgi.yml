@@ -1,8 +1,8 @@
 ---
 
-- name: Create "{{ openwisp2_path }}/ssl"
+- name: Create "{{ openwisp2_wireguard_path }}/ssl"
   file:
-    path: "{{ openwisp2_path }}/ssl"
+    path: "{{ openwisp2_wireguard_path }}/ssl"
     state: directory
     mode: 0770
     group: "{{ openwisp_group }}"
@@ -12,13 +12,13 @@
   become_user: root
   command: >
     openssl req -new -nodes -x509 \
-    -subj "/C={{ openwisp2_ssl_country }}/ST={{ openwisp2_ssl_state }} \
-           /L={{ openwisp2_ssl_locality }}/O={{ openwisp2_ssl_organization }} \
-           /CN={{ openwisp2_ssl_common_name }}" \
+    -subj "/C={{ openwisp2_wireguard_ssl_country }}/ST={{ openwisp2_wireguard_ssl_state }} \
+           /L={{ openwisp2_wireguard_ssl_locality }}/O={{ openwisp2_wireguard_ssl_organization }} \
+           /CN={{ openwisp2_wireguard_ssl_common_name }}" \
     -days 3650 \
-    -keyout {{ openwisp2_ssl_key }} \
-    -out {{ openwisp2_ssl_cert }} \
-    -extensions v3_ca creates={{ openwisp2_ssl_cert }}
+    -keyout {{ openwisp2_wireguard_ssl_key }} \
+    -out {{ openwisp2_wireguard_ssl_cert }} \
+    -extensions v3_ca creates={{ openwisp2_wireguard_ssl_cert }}
   args:
     warn: false
   tags: [ssl]
@@ -27,7 +27,7 @@
   notify: reload supervisor
   template:
     src: flask/uwsgi.ini
-    dest: "{{ openwisp2_wireguard_directory }}/uwsgi.ini"
+    dest: "{{ openwisp2_wireguard_path }}/uwsgi.ini"
     group: "{{ openwisp_group }}"
     mode: 0754
   tags: [flask]

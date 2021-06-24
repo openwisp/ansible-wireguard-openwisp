@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 KEY = '{{ openwisp2_wireguard_flask_key }}'
 UPDATER_SCRIPTS = [
-    '{{ openwisp2_wireguard_directory }}/update_wireguard.sh check_config',
+    '{{ openwisp2_wireguard_path }}/update_wireguard.sh check_config',
 ]
 
 

@@ -10,7 +10,7 @@ BASE_URL="{{ openwisp2_wireguard_controller_url }}"
 VPN_UUID="{{ openwisp2_wireguard_vpn_uuid }}"
 VPN_KEY="{{ openwisp2_wireguard_vpn_key }}"
 # make sure this directory is writable by the user which calls the script
-CONF_DIR="{{ openwisp2_wireguard_directory | default('/etc/wireguard') }}"
+CONF_DIR="{{ openwisp2_wireguard_path }}"
 
 # do not modify these vars
 _VPN_URL_PATH="$BASE_URL/controller/vpn"
@@ -95,8 +95,8 @@ update_config() {
     # Save checksum of applied configuration
     echo $_latest_checksum > $_CHECKSUM_FILE
 
-    export VXLAN_IPV4_METHOD="{{ openwisp2_vxlan_ipv4_method }}" \
-        VXLAN_IPV6_METHOD="{{ openwisp2_vxlan_ipv6_method }}"
+    export VXLAN_IPV4_METHOD="{{ openwisp2_wireguard_vxlan_ipv4_method }}" \
+        VXLAN_IPV6_METHOD="{{ openwisp2_wireguard_vxlan_ipv6_method }}"
     test -f "$CONF_DIR/vxlan.json" &&
         ./update_vxlan.py "$CONF_DIR/vxlan.json" &&
         mv -f "$CONF_DIR/vxlan.json" "$_APPLIED_CONF_DIR/vxlan.json"

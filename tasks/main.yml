@@ -3,7 +3,7 @@
 - name: Check required variables
   fail: msg="Variable '{{ item }}' is not defined"
   when: item is false
-  with_items: "{{ required_variables }}"
+  with_items: "{{ openwisp2_wireguard_required_variables }}"
 
 - import_tasks: user_management.yml
   tags: [wireguard_openwisp, user_management]

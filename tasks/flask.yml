@@ -2,7 +2,7 @@
 
 - name: Create Wireguard directory
   file:
-    path: "{{ openwisp2_wireguard_directory }}"
+    path: "{{ openwisp2_wireguard_path }}"
     state: directory
     group: "{{ openwisp_group }}"
     mode: 0770
@@ -11,7 +11,7 @@
 - name: update_wireguard.sh
   template:
     src: update_scripts/update_wireguard.sh.j2
-    dest: "{{ openwisp2_wireguard_directory }}/update_wireguard.sh"
+    dest: "{{ openwisp2_wireguard_path }}/update_wireguard.sh"
     group: "{{ openwisp_group }}"
     mode: 0750
   tags: [wireguard, updater_script]
@@ -44,7 +44,7 @@
         path: /etc/rc.d/rc-wg.local
         state: present
         create: true
-        line: "{{ openwisp2_wireguard_directory }}/update_wireguard.sh bring_up_interface # {{ openwisp2_wireguard_vpn_uuid }}"
+        line: "{{ openwisp2_wireguard_path }}/update_wireguard.sh bring_up_interface # {{ openwisp2_wireguard_vpn_uuid }}"
         mode: 0755
         group: "{{ openwisp_group }}"
     - name: systemctl daemon-reload
@@ -60,7 +60,7 @@
 - name: update_vxlan.py
   ansible.builtin.copy:
     src: update_scripts/update_vxlan.py
-    dest: "{{ openwisp2_wireguard_directory }}/update_vxlan.py"
+    dest: "{{ openwisp2_wireguard_path }}/update_vxlan.py"
     mode: 0750
     group: "{{ openwisp_group }}"
   tags: [wireguard, updater_script]
@@ -72,7 +72,7 @@
     day: "*"
     hour: "*"
     minute: "*/5"
-    job: "{{ openwisp2_wireguard_directory }}/update_wireguard.sh"
+    job: "{{ openwisp2_wireguard_path }}/update_wireguard.sh"
     state: present
     user: "{{ openwisp_user }}"
   tags: [wireguard, updater_script]
@@ -81,7 +81,7 @@
   notify: reload supervisor
   template:
     src: flask/vpn_updater.py
-    dest: "{{ openwisp2_wireguard_directory }}/vpn_updater.py"
+    dest: "{{ openwisp2_wireguard_path }}/vpn_updater.py"
     group: "{{ openwisp_group }}"
     mode: 0754
   tags: [flask]

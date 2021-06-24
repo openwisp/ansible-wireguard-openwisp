@@ -47,7 +47,7 @@ Below are listed all the variables you can customize (you may also want to take 
     - ansible-wireguard-openwisp
   vars:
     # Directory where to install upgrader scripts
-    openwisp2_wireguard_directory: "{{ openwisp2_path }}/wireguard"
+    openwisp2_wireguard_path: "/opt/wireguard-openwisp"
     # Allows to download VPN configuration by using "insecure" SSL connections.
     # It is recommended to be left as false.
     openwisp2_wireguard_curl_insecure: false
@@ -68,24 +68,22 @@ Below are listed all the variables you can customize (you may also want to take 
 
     # specify path to a valid SSL certificate and key
     # (a self-signed SSL cert will be generated if omitted)
-    openwisp2_ssl_cert: "/opt/openwisp2/ssl/server.crt"
-    openwisp2_ssl_key: "/opt/openwisp2/ssl/server.key"
+    openwisp2_wireguard_ssl_cert: "/opt/wireguard-openwisp/ssl/server.crt"
+    openwisp2_wireguard_ssl_key: "/opt/wireguard-openwisp/ssl/server.key"
     # customize the self-signed SSL certificate info if needed
-    openwisp2_ssl_country: "US"
-    openwisp2_ssl_state: "California"
-    openwisp2_ssl_locality: "San Francisco"
-    openwisp2_ssl_organization: "IT dep."
+    openwisp2_wireguard_ssl_country: "US"
+    openwisp2_wireguard_ssl_state: "California"
+    openwisp2_wireguard_ssl_locality: "San Francisco"
+    openwisp2_wireguard_ssl_organization: "IT dep."
 
     # by default python3 is used, if may need to set this to python2.7 for older systems
-    openwisp2_python: python2.7
-    # customize the app_path
-    openwisp2_path: /opt/openwisp2
+    openwisp2_wireguard_python: python2.7
     # virtualenv command for your remote distribution, usually set automcatically
-    virtualenv_command: "virtualenv"
+    openwisp2_wireguard_virtualenv_command: "virtualenv"
 
     # Sets the ipv4.method of VXLAN connection, defaults to "link-local"
-    openwisp2_vxlan_ipv4_method: disabled
-    openwisp2_vxlan_ipv6_method: disabled
+    openwisp2_wireguard_vxlan_ipv4_method: disabled
+    openwisp2_wireguard_vxlan_ipv6_method: disabled
 ```
 
 Automatic SSL certificate
@@ -131,8 +129,8 @@ following example:
     openwisp2_wireguard_flask_key: "paste-endpoint-auth-token"
 
     # SSL certificates
-    openwisp2_ssl_cert: "/etc/letsencrypt/live/{{ ansible_fqdn }}/fullchain.pem"
-    openwisp2_ssl_key: "/etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem"
+    openwisp2_wireguard_ssl_cert: "/etc/letsencrypt/live/{{ ansible_fqdn }}/fullchain.pem"
+    openwisp2_wireguard_ssl_key: "/etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem"
 
     # certbot configuration
     certbot_auto_renew_user: "privileged-users-to-renew-certs"
@@ -156,7 +154,7 @@ Using this role you can set up multiple WireGuard interfaces on the same
 machine that are managed by OpenWISP independently. You will have to
  ensure that the following role variables are unique for each play:
 
-- `openwisp2_wireguard_directory`
+- `openwisp2_wireguard_path`
 - `openwisp2_wireguard_flask_port`
 
 Below is an example playbook containing two plays for setting up multiple
@@ -170,8 +168,8 @@ WireGuard interfaces.
   roles:
     - ansible-wireguard-openwisp
   vars:
-    openwisp2_wireguard_directory: "/opt/openwisp2/wireguard-1"
     openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
+    openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-1"
     openwisp2_wireguard_vpn_uuid: "paste-vpn1-uuid-here"
     openwisp2_wireguard_vpn_key: "paste-vpn1-key-here"
     openwisp2_wireguard_flask_key: "paste-vpn1-endpoint-auth-token"
@@ -184,8 +182,8 @@ WireGuard interfaces.
   roles:
     - ansible-wireguard-openwisp
   vars:
-    openwisp2_wireguard_directory: "/opt/openwisp2/wireguard-2"
     openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
+    openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-2"
     openwisp2_wireguard_vpn_uuid: "paste-vpn-2-uuid-here"
     openwisp2_wireguard_vpn_key: "paste-vpn-2-key-here"
     openwisp2_wireguard_flask_key: "paste-vpn-2-endpoint-auth-token"
