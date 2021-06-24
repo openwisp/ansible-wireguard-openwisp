@@ -5,7 +5,7 @@ openwisp2_wireguard_virtualenv_command: "virtualenv"
 
 openwisp2_wireguard_path: "/opt/wireguard-openwisp"
 openwisp2_wireguard_curl_insecure: false
-openwisp2_wireguard_controller_url: false
+openwisp2_wireguard_controller_url: "https://{{ inventory_hostname }}"
 openwisp2_wireguard_vpn_uuid: false
 openwisp2_wireguard_vpn_key: false
 openwisp2_wireguard_flask_key: false

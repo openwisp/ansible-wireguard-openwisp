@@ -46,13 +46,17 @@ Below are listed all the variables you can customize (you may also want to take 
   roles:
     - ansible-wireguard-openwisp
   vars:
+    # URL of OpenWISP instance, you can omit this (delete it) if wireguard
+    # is being installed on the same host on which OpenWISP is running.
+    # If you're using two separate hosts (one for OpenWISP and one for Wireguard),
+    # which is a good idea, you will need to specify the URL of your
+    # OpenWISP instance (running OpenWISP Controller >= 1.0.0) here
+    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
     # Directory where to install upgrader scripts
     openwisp2_wireguard_path: "/opt/wireguard-openwisp"
     # Allows to download VPN configuration by using "insecure" SSL connections.
     # It is recommended to be left as false.
     openwisp2_wireguard_curl_insecure: false
-    # URL of OpenWISP Installation
-    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
     # UUID of the VPN generated after creating VPN server object in OpenWISP
     openwisp2_wireguard_vpn_uuid: "paste-vpn-uuid-here"
     # Key of the VPN generated after creating VPN server object in OpenWISP
