@@ -1,9 +1,10 @@
 ---
 
-- name: Change superuser password hint
+- name: Show webhook endpoint and webook auth token to use in OpenWISP
   debug:
-    msg: |
-      Webhook endpoint: https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}
-      Auth Token: {{ openwisp2_wireguard_flask_key }}"
+    msg:
+      - "Set the following parametrers in {{ openwisp2_wireguard_controller_url }}/admin/config/vpn/{{ openwisp2_wireguard_vpn_uuid }}/change/"
+      - "Webhook Endpoint: https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}"
+      - "Webhook AuthToken: {{ openwisp2_wireguard_flask_key }}"
   tags:
     - molecule-idempotence-notest
