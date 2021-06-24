@@ -5,30 +5,37 @@
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/openwisp/general)
 
 Ansible role that installs WireGuard and management scripts for OpenWISP.
-Once installed and configured correctly with [OpenWISP](https://github.com/openwisp/openwisp-controller/tree/1.0.x#how-to-setup-wireguard-tunnels),
+Once installed and configured correctly with
+[OpenWISP](https://github.com/openwisp/openwisp-controller/tree/1.0.x#how-to-setup-wireguard-tunnels),
 WireGuard peers are managed automatically by OpenWISP without the need of
-manual intervention. It also configures scripts to allow OpenWISP manage
+manual intervention.
+
+This role can also configure scripts to allow OpenWISP manage
 [VXLAN over WireGuard](https://github.com/openwisp/openwisp-controller/tree/1.0.x#how-to-setup-vxlan-over-wireguard-tunnels) tunnels.
 
 Tested on **Debian**, **Ubuntu** and **CentOS**.
 
-**NOTE**: it is highly suggested to use this procedure on clean virtual machines or linux containers.
+**NOTE**: it is highly suggested to use this procedure on clean
+virtual machines or linux containers.
 
 **Minimum ansible version supported**: 2.10.
 
 Installing this role
 -----------------
 
-For the sake of simplicity, the easiest thing is to install this role **on your local machine**
-via `ansible-galaxy`:
+For the sake of simplicity, the easiest thing is to install this
+role **on your local machine** via `ansible-galaxy`:
 
 ```
 ansible-galaxy install git+https://github.com/openwisp/ansible-wireguard-openwisp.git
 ```
 
-**NOTE:** This role **will not configure forwarding packets nor add static or dynamic routes** on your server.
+**NOTE:** This role **will not configure forwarding packets nor add static
+or dynamic routes** on your server.
 
-Since the exact way in which packets can be routed can vary depending on different factors and needs which can differ greatly from organization to organization, it's left out to the user to configure it according to their needs.
+Since the exact way in which packets can be routed can vary depending on
+different factors and needs which can differ greatly from organization to
+organization, it's left out to the user to configure it according to their needs.
 [We may add a default routing/forwarding configuration in the future once we have more usage data, if you're interested in this, please let us know](https://github.com/openwisp/ansible-wireguard-openwisp/issues/8).
 
 Role variables
@@ -37,7 +44,8 @@ Role variables
 This role has many variables values that can be changed to best suit
 your needs.
 
-Below are listed all the variables you can customize (you may also want to take a look at
+Below are listed all the variables you can customize
+(you may also want to take a look at
 [the default values of these variables](https://github.com/openwisp/ansible-wireguard-openwisp/blob/main/defaults/main.yml)).
 
 ```yaml
@@ -156,7 +164,7 @@ Setting up multiple WireGuard Interfaces
 
 Using this role you can set up multiple WireGuard interfaces on the same
 machine that are managed by OpenWISP independently. You will have to
- ensure that the following role variables are unique for each play:
+ensure that the following role variables are unique for each playbook:
 
 - `openwisp2_wireguard_path`
 - `openwisp2_wireguard_flask_port`
