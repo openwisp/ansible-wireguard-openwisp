@@ -62,8 +62,9 @@ update_config() {
     $($_CURL $_VPN_DOWNLOAD_URL > "$_CONF_TAR")
     echo "Configuration downloaded, extracting it..."
     tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
-
-    [ -e "$_MANAGED_INTERFACE" ] && managed_interface_name=$(cat "$_MANAGED_INTERFACE")
+    if [ -e "$_MANAGED_INTERFACE" ]; then
+        managed_interface_name=$(cat "$_MANAGED_INTERFACE")
+    fi
 
     for file in $CONF_DIR/*.conf; do
         [ -e "$file" ] || continue
@@ -80,10 +81,10 @@ update_config() {
         else
             # Update the configuration of current managed interface
             echo "Reloading wireguard interface $interface with config file $file..."
-            wg_conf_filename="$filename-wg.conf"
-            sudo wg-quick strip ./"$filename" > "$wg_conf_filename"
-            sudo wg syncconf $interface ./"$wg_conf_filename"
-            rm "$wg_conf_filename"
+            wg_conf_filename="$filename-wg"
+            sudo wg-quick strip "$CONF_DIR/$filename" > "$CONF_DIR/$wg_conf_filename"
+            sudo wg syncconf $interface "$CONF_DIR/$wg_conf_filename"
+            rm "$CONF_DIR/$wg_conf_filename"
         fi
         echo "$interface" > "$_MANAGED_INTERFACE"
         mv -f "$file" "$_APPLIED_CONF_DIR/$filename"
@@ -94,9 +95,10 @@ update_config() {
 
     export VXLAN_IPV4_METHOD="{{ openwisp2_wireguard_vxlan_ipv4_method }}" \
         VXLAN_IPV6_METHOD="{{ openwisp2_wireguard_vxlan_ipv6_method }}"
-    test -f "$CONF_DIR/vxlan.json" &&
-        ./update_vxlan.py "$CONF_DIR/vxlan.json" &&
+    if [ -e "$CONF_DIR/vxlan.json" ]; then
+        "$CONF_DIR/update_vxlan.py" "$CONF_DIR/vxlan.json"
         mv -f "$CONF_DIR/vxlan.json" "$_APPLIED_CONF_DIR/vxlan.json"
+    fi
 }
 
 bring_up_interface() {
