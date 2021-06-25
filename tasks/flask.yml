@@ -72,7 +72,7 @@
     day: "*"
     hour: "*"
     minute: "*/5"
-    job: "{{ openwisp2_wireguard_path }}/update_wireguard.sh"
+    job: "{{ openwisp2_wireguard_path }}/update_wireguard.sh check_config"
     state: present
     user: "{{ openwisp_user }}"
   tags: [wireguard, updater_script]
