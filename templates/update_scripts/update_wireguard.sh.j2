@@ -21,14 +21,24 @@ _CHECKSUM_FILE="$_WORKING_DIR/checksum"
 _MANAGED_INTERFACE="$_WORKING_DIR/managed-interface"
 _APPLIED_CONF_DIR="$_WORKING_DIR/current-conf"
 _CONF_TAR="$_WORKING_DIR/conf.tar.gz"
-_CURL="curl -s {% if openwisp2_wireguard_curl_insecure %}--insecure{% endif %}"
+_CURL="curl -s --show-error --fail {% if openwisp2_wireguard_curl_insecure %}--insecure{% endif %}"
 
 mkdir -p $_WORKING_DIR
 mkdir -p $_APPLIED_CONF_DIR
 
+assert_exit_code() {
+    exit_code=$?
+    command=!!:0:p
+    if [ "$exit_code" != "0" ]; then
+        echo "Command $command returned non zero exit code: $exit_code"
+        exit $exit_code
+    fi
+}
+
+
 check_config() {
     _latest_checksum=$($_CURL $_VPN_CHECKSUM_URL)
-
+    assert_exit_code
     if [ -f "$_CHECKSUM_FILE" ]; then
         _current_checksum=$(cat $_CHECKSUM_FILE)
     else
@@ -60,8 +70,10 @@ update_config() {
     # for having public configurations
     umask 0117;
     $($_CURL $_VPN_DOWNLOAD_URL > "$_CONF_TAR")
+    assert_exit_code
     echo "Configuration downloaded, extracting it..."
     tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
+    assert_exit_code
     if [ -e "$_MANAGED_INTERFACE" ]; then
         managed_interface_name=$(cat "$_MANAGED_INTERFACE")
     fi
@@ -77,17 +89,22 @@ update_config() {
         # Current managed interface is not present in new configuration
         elif [ "$managed_interface_name" != "$interface" ]; then
             clean_old_interface
+            assert_exit_code
             create_new_interface
+            assert_exit_code
         else
             # Update the configuration of current managed interface
             echo "Reloading wireguard interface $interface with config file $file..."
             wg_conf_filename="$filename-wg"
             sudo wg-quick strip "$CONF_DIR/$filename" > "$CONF_DIR/$wg_conf_filename"
+            assert_exit_code
             sudo wg syncconf $interface "$CONF_DIR/$wg_conf_filename"
+            assert_exit_code
             rm "$CONF_DIR/$wg_conf_filename"
         fi
         echo "$interface" > "$_MANAGED_INTERFACE"
         mv -f "$file" "$_APPLIED_CONF_DIR/$filename"
+        assert_exit_code
     done
 
     # Save checksum of applied configuration
