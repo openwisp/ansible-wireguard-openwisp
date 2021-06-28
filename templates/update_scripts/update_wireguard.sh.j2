@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 if [ "$(whoami)" != "{{ openwisp_user }}" ]; then
     echo "Script should only be run by {{ openwisp_user }}. Exiting!"
@@ -28,17 +27,16 @@ mkdir -p $_APPLIED_CONF_DIR
 
 assert_exit_code() {
     exit_code=$?
-    command=!!:0:p
+    lineno=$(($1-1))
     if [ "$exit_code" != "0" ]; then
-        echo "Command $command returned non zero exit code: $exit_code"
+        echo "Line $lineno: Command returned non zero exit code: $exit_code"
         exit $exit_code
     fi
 }
 
-
 check_config() {
     _latest_checksum=$($_CURL $_VPN_CHECKSUM_URL)
-    assert_exit_code
+    assert_exit_code $LINENO
     if [ -f "$_CHECKSUM_FILE" ]; then
         _current_checksum=$(cat $_CHECKSUM_FILE)
     else
@@ -70,10 +68,10 @@ update_config() {
     # for having public configurations
     umask 0117;
     $($_CURL $_VPN_DOWNLOAD_URL > "$_CONF_TAR")
-    assert_exit_code
+    assert_exit_code $LINENO
     echo "Configuration downloaded, extracting it..."
     tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
-    assert_exit_code
+    assert_exit_code $LINENO
     if [ -e "$_MANAGED_INTERFACE" ]; then
         managed_interface_name=$(cat "$_MANAGED_INTERFACE")
     fi
@@ -89,22 +87,22 @@ update_config() {
         # Current managed interface is not present in new configuration
         elif [ "$managed_interface_name" != "$interface" ]; then
             clean_old_interface
-            assert_exit_code
+            assert_exit_code $LINENO
             create_new_interface
-            assert_exit_code
+            assert_exit_code $LINENO
         else
             # Update the configuration of current managed interface
             echo "Reloading wireguard interface $interface with config file $file..."
             wg_conf_filename="$filename-wg"
             sudo wg-quick strip "$CONF_DIR/$filename" > "$CONF_DIR/$wg_conf_filename"
-            assert_exit_code
+            assert_exit_code $LINENO
             sudo wg syncconf $interface "$CONF_DIR/$wg_conf_filename"
-            assert_exit_code
+            assert_exit_code $LINENO
             rm "$CONF_DIR/$wg_conf_filename"
         fi
         echo "$interface" > "$_MANAGED_INTERFACE"
         mv -f "$file" "$_APPLIED_CONF_DIR/$filename"
-        assert_exit_code
+        assert_exit_code $LINENO
     done
 
     # Save checksum of applied configuration
