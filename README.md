@@ -6,12 +6,12 @@
 
 Ansible role that installs WireGuard and management scripts for OpenWISP.
 Once installed and configured correctly with
-[OpenWISP](https://github.com/openwisp/openwisp-controller/tree/1.0.x#how-to-setup-wireguard-tunnels),
+[OpenWISP](https://github.com/openwisp/openwisp-controller/#how-to-setup-wireguard-tunnels),
 WireGuard peers are managed automatically by OpenWISP without the need of
 manual intervention.
 
 This role can also configure scripts to allow OpenWISP manage
-[VXLAN over WireGuard](https://github.com/openwisp/openwisp-controller/tree/1.0.x#how-to-setup-vxlan-over-wireguard-tunnels) tunnels.
+[VXLAN over WireGuard](https://github.com/openwisp/openwisp-controller/#how-to-setup-vxlan-over-wireguard-tunnels) tunnels.
 
 Tested on **Debian**, **Ubuntu** and **CentOS**.
 
