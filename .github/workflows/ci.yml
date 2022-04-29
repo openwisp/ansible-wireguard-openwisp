@@ -64,11 +64,11 @@ jobs:
     needs:
       - build
 
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
     steps:
       - name: Install ansible
         run: pip install ansible
 
       - name: Update imports on Ansible Galaxy
         run: |
-          ansible-galaxy role import --api-key ${{ secrets.GALAXY_TOKEN }} openwisp ansible-openwisp2
+          ansible-galaxy role import --api-key ${{ secrets.GALAXY_API_KEY }} openwisp wireguard_openwisp
