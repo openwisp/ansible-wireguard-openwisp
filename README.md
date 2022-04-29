@@ -27,7 +27,7 @@ For the sake of simplicity, the easiest thing is to install this
 role **on your local machine** via `ansible-galaxy`:
 
 ```
-ansible-galaxy install git+https://github.com/openwisp/ansible-wireguard-openwisp.git
+ansible-galaxy install openwisp.wireguard_openwisp
 ```
 
 **NOTE:** This role **will not configure forwarding packets nor add static
