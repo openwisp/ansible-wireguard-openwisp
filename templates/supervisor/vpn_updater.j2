@@ -1,7 +1,7 @@
 [program:openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}]
 user=root
 directory={{ openwisp2_wireguard_path }}
-command={{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini
+command={{ openwisp2_wireguard_uwsgi_command }}
 autostart=true
 autorestart=true
 stopsignal=INT

@@ -77,6 +77,8 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_flask_port: 8081
     # Host where Flask endpoint is run
     openwisp2_wireguard_flask_host: 0.0.0.0
+    # Command used to run uwsgi from supervisor
+    openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
 
     # specify path to a valid SSL certificate and key
     # (a self-signed SSL cert will be generated if omitted)
