@@ -29,5 +29,5 @@
     src: flask/uwsgi.ini
     dest: "{{ openwisp2_wireguard_path }}/uwsgi.ini"
     group: "{{ openwisp_group }}"
-    mode: 0754
+    mode: 0644
   tags: [flask]
