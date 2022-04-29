@@ -1,6 +1,8 @@
 ---
 
 galaxy_info:
+  role_name: wireguard_openwisp
+  namespace: openwisp
   author: Gagan Deep
   company: OpenWISP
   description: Role to install OpenWISP's Wireguard Updater
@@ -22,3 +24,5 @@ galaxy_info:
   galaxy_tags:
     - system
     - networking
+    - wireguard
+    - openwisp
