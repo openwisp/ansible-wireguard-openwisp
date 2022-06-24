@@ -26,7 +26,7 @@
 - name: Install Flask and uWSGI
   pip:
     name:
-      - "Flask~=1.1.0"
+      - "Flask~=2.0.3"
       - "uwsgi~=2.0.19"
     state: latest
     virtualenv: "{{ virtualenv_path }}"
