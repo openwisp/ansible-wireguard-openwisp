@@ -52,7 +52,7 @@ Below are listed all the variables you can customize
 - hosts: openwisp2_wireguard
   become: "{{ become | default('yes') }}"
   roles:
-    - ansible-wireguard-openwisp
+    - openwisp.wireguard_openwisp
   vars:
     # URL of OpenWISP instance, you can omit this (delete it) if wireguard
     # is being installed on the same host on which OpenWISP is running.
@@ -135,7 +135,7 @@ following example:
   become: "{{ become | default('yes') }}"
   roles:
     - geerlingguy.certbot
-    - ansible-wireguard-openwisp
+    - openwisp.wireguard_openwisp
   vars:
     openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
     openwisp2_wireguard_vpn_uuid: "paste-vpn-uuid-here"
@@ -180,7 +180,7 @@ WireGuard interfaces.
     - wireguard
   become: "{{ become | default('yes') }}"
   roles:
-    - ansible-wireguard-openwisp
+    - openwisp.wireguard_openwisp
   vars:
     openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
     openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-1"
@@ -194,7 +194,7 @@ WireGuard interfaces.
     - wireguard
   become: "{{ become | default('yes') }}"
   roles:
-    - ansible-wireguard-openwisp
+    - openwisp.wireguard_openwisp
   vars:
     openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
     openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-2"
