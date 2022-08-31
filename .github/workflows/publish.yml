@@ -6,16 +6,12 @@ on:             # yamllint disable-line rule:truthy
   release:
     types:
       - published
-      - created
-      - edited
 
 jobs:
   publish:
     name: Publish the role on Ansible Galaxy
     runs-on: ubuntu-20.04
     container: python:3-slim
-    needs:
-      - build
 
     steps:
       - name: Set up Python
