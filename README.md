@@ -21,7 +21,7 @@ virtual machines or linux containers.
 **Minimum ansible version supported**: 2.10.
 
 Installing this role
------------------
+--------------------
 
 For the sake of simplicity, the easiest thing is to install this
 role **on your local machine** via `ansible-galaxy`:
@@ -29,6 +29,10 @@ role **on your local machine** via `ansible-galaxy`:
 ```
 ansible-galaxy install openwisp.wireguard_openwisp
 ```
+
+Refer to the example playbook in
+["Full Example Playbook with SSL certificate" section of this documentation](#full-example-playbook-with-ssl-certificate)
+to quickly get started with this role.
 
 **NOTE:** This role **will not configure forwarding packets nor add static
 or dynamic routes** on your server.
@@ -38,7 +42,121 @@ different factors and needs which can differ greatly from organization to
 organization, it's left out to the user to configure it according to their needs.
 [We may add a default routing/forwarding configuration in the future once we have more usage data, if you're interested in this, please let us know](https://github.com/openwisp/ansible-wireguard-openwisp/issues/8).
 
-Role variables
+Full Example Playbook with SSL certificate
+------------------------------------------
+
+By default the playbook creates a self-signed (untrusted) SSL certificate for
+the VPN endpoint. If you keep the untrusted certificate, you will also need to
+disable SSL verification on OpenWISP, although we advice against using this
+kind of setup in a production environment. You can
+install your own trusted certificate by following steps in this section.
+
+The first thing you have to do is to setup a valid domain for your wireguard
+VPN, this means your inventory file (hosts) should look like the following:
+
+```
+[openwisp2_wireguard]
+wireguard.yourdomain.com
+```
+
+You must be able to add a DNS record for `wireguard.yourdomain.com`, you cannot
+use an ip address in place of `wireguard.yourdomain.com`.
+
+Once your domain is set up and the DNS record is propagated, proceed by
+installing the ansible role [geerlingguy.certbot](https://galaxy.ansible.com/geerlingguy/certbot/)
+
+```
+ansible-galaxy install geerlingguy.certbot
+```
+
+Then proceed to create your playbook.yml so that it will look similar to the
+following example:
+
+```yaml
+- hosts: openwisp2_wireguard
+  become: "{{ become | default('yes') }}"
+  roles:
+    - geerlingguy.certbot
+    - openwisp.wireguard_openwisp
+  vars:
+    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
+    openwisp2_wireguard_vpn_uuid: "paste-vpn-uuid-here"
+    openwisp2_wireguard_vpn_key: "paste_vpn-key-here"
+    openwisp2_wireguard_flask_key: "paste-endpoint-auth-token"
+
+    # SSL certificates
+    openwisp2_wireguard_ssl_cert: "/etc/letsencrypt/live/{{ ansible_fqdn }}/fullchain.pem"
+    openwisp2_wireguard_ssl_key: "/etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem"
+
+    # certbot configuration
+    certbot_auto_renew_user: "privileged-user-to-renew-certs"
+    certbot_auto_renew_minute: "20"
+    certbot_auto_renew_hour: "5"
+    certbot_create_if_missing: true
+    certbot_create_standalone_stop_services: []
+    certbot_certs:
+      - email: "paste-your-email"
+        domains:
+          - wireguard.yourdomain.com
+```
+
+Read the [documentation of `geerlingguy.certbot`](https://github.com/geerlingguy/ansible-role-certbot#readme)
+to learn more about configuration of certbot role.
+
+To learn about all ansible variables provided by `openwisp.wireguard_openwisp`,
+read the ["Role Variables" section of this documentation](#role-variables).
+
+Setting up multiple WireGuard Interfaces
+========================================
+
+Using this role you can set up multiple WireGuard interfaces on the same
+machine that are managed by OpenWISP independently. You will have to
+ensure that the following role variables are unique for each playbook:
+
+- `openwisp2_wireguard_path`
+- `openwisp2_wireguard_flask_port`
+
+Below is an example playbook containing two plays for setting up multiple
+WireGuard interfaces.
+
+```yaml
+- name: Setup up first WireGuard interface
+  hosts:
+    - wireguard
+  become: "{{ become | default('yes') }}"
+  roles:
+    - openwisp.wireguard_openwisp
+  vars:
+    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
+    openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-1"
+    openwisp2_wireguard_vpn_uuid: "paste-vpn1-uuid-here"
+    openwisp2_wireguard_vpn_key: "paste-vpn1-key-here"
+    openwisp2_wireguard_flask_key: "paste-vpn1-endpoint-auth-token"
+    openwisp2_wireguard_flask_port: 8081
+
+- name: Setup second WireGuard interface
+  hosts:
+    - wireguard
+  become: "{{ become | default('yes') }}"
+  roles:
+    - openwisp.wireguard_openwisp
+  vars:
+    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
+    openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-2"
+    openwisp2_wireguard_vpn_uuid: "paste-vpn-2-uuid-here"
+    openwisp2_wireguard_vpn_key: "paste-vpn-2-key-here"
+    openwisp2_wireguard_flask_key: "paste-vpn-2-endpoint-auth-token"
+    openwisp2_wireguard_flask_port: 8082
+```
+
+Gotchas
+-------
+
+- While creating VPN server objects in OpenWISP, ensure that `interface name`
+  and `port` are unique for each VPN. Otherwise, the update scripts will
+  not work properly due to conflicts.
+
+Role Variables
 ==============
 
 This role has many variables values that can be changed to best suit
@@ -99,117 +217,6 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_vxlan_ipv4_method: disabled
     openwisp2_wireguard_vxlan_ipv6_method: disabled
 ```
-
-Automatic SSL certificate
--------------------------
-
-By default the playbook creates a self-signed (untrusted) SSL certificate for
-the VPN endpoint. If you keep the untrusted certificate, you will also need to
-disable SSL verification on OpenWISP, although we advice against using this
-kind of setup in a production environment. You can
-install your own trusted certificate by following steps in this section.
-
-The first thing you have to do is to setup a valid domain for your wireguard
-VPN, this means your inventory file (hosts) should look like the following:
-
-```
-[openwisp2_wireguard]
-wireguard.yourdomain.com
-```
-
-You must be able to add a DNS record for `wireguard.yourdomain.com`, you cannot
-use an ip address in place of `openwisp2.yourdomain.com`.
-
-Once your domain is set up and the DNS record is propagated, proceed by
-installing the ansible role [geerlingguy.certbot](https://galaxy.ansible.com/geerlingguy/certbot/)
-
-```
-ansible-galaxy install geerlingguy.certbot
-```
-
-Then proceed to edit your playbook.yml so that it will look similar to the
-following example:
-
-```yaml
-- hosts: openwisp2_wireguard
-  become: "{{ become | default('yes') }}"
-  roles:
-    - geerlingguy.certbot
-    - openwisp.wireguard_openwisp
-  vars:
-    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
-    openwisp2_wireguard_vpn_uuid: "paste-vpn-uuid-here"
-    openwisp2_wireguard_vpn_key: "paste_vpn-key-here"
-    openwisp2_wireguard_flask_key: "paste-endpoint-auth-token"
-
-    # SSL certificates
-    openwisp2_wireguard_ssl_cert: "/etc/letsencrypt/live/{{ ansible_fqdn }}/fullchain.pem"
-    openwisp2_wireguard_ssl_key: "/etc/letsencrypt/live/{{ ansible_fqdn }}/privkey.pem"
-
-    # certbot configuration
-    certbot_auto_renew_user: "privileged-users-to-renew-certs"
-    certbot_auto_renew_minute: "20"
-    certbot_auto_renew_hour: "5"
-    certbot_create_if_missing: true
-    certbot_create_standalone_stop_services: []
-    certbot_certs:
-      - email: "paste-your-email"
-        domains:
-          - wireguard.yourdomain.com
-```
-
-Read the [documentation of `geerlingguy.certbot`](https://github.com/geerlingguy/ansible-role-certbot#readme)
-to learn more about configuration of certbot role.
-
-Setting up multiple WireGuard Interfaces
-========================================
-
-Using this role you can set up multiple WireGuard interfaces on the same
-machine that are managed by OpenWISP independently. You will have to
-ensure that the following role variables are unique for each playbook:
-
-- `openwisp2_wireguard_path`
-- `openwisp2_wireguard_flask_port`
-
-Below is an example playbook containing two plays for setting up multiple
-WireGuard interfaces.
-
-```yaml
-- name: Setup up first WireGuard interface
-  hosts:
-    - wireguard
-  become: "{{ become | default('yes') }}"
-  roles:
-    - openwisp.wireguard_openwisp
-  vars:
-    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
-    openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-1"
-    openwisp2_wireguard_vpn_uuid: "paste-vpn1-uuid-here"
-    openwisp2_wireguard_vpn_key: "paste-vpn1-key-here"
-    openwisp2_wireguard_flask_key: "paste-vpn1-endpoint-auth-token"
-    openwisp2_wireguard_flask_port: 8081
-
-- name: Setup second WireGuard interface
-  hosts:
-    - wireguard
-  become: "{{ become | default('yes') }}"
-  roles:
-    - openwisp.wireguard_openwisp
-  vars:
-    openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
-    openwisp2_wireguard_path: "/opt/wireguard-openwisp/wireguard-2"
-    openwisp2_wireguard_vpn_uuid: "paste-vpn-2-uuid-here"
-    openwisp2_wireguard_vpn_key: "paste-vpn-2-key-here"
-    openwisp2_wireguard_flask_key: "paste-vpn-2-endpoint-auth-token"
-    openwisp2_wireguard_flask_port: 8082
-```
-
-Gotchas
--------
-
-- While creating VPN server objects in OpenWISP, ensure that `interface name`
-  and `port` are unique for each VPN. Otherwise, the update scripts will
-  not work properly due to conflicts.
 
 How to run tests
 ----------------
