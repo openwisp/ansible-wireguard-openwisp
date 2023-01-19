@@ -20,8 +20,7 @@ virtual machines or linux containers.
 
 **Minimum ansible version supported**: 2.10.
 
-Installing this role
---------------------
+## Install & Usage Instructions
 
 For the sake of simplicity, the easiest thing is to install this
 role **on your local machine** via `ansible-galaxy`:
@@ -42,8 +41,7 @@ different factors and needs which can differ greatly from organization to
 organization, it's left out to the user to configure it according to their needs.
 [We may add a default routing/forwarding configuration in the future once we have more usage data, if you're interested in this, please let us know](https://github.com/openwisp/ansible-wireguard-openwisp/issues/8).
 
-Full Example Playbook with SSL certificate
-------------------------------------------
+### Full Example Playbook with SSL certificate
 
 By default the playbook creates a self-signed (untrusted) SSL certificate for
 the VPN endpoint. If you keep the untrusted certificate, you will also need to
@@ -106,8 +104,7 @@ to learn more about configuration of certbot role.
 To learn about all ansible variables provided by `openwisp.wireguard_openwisp`,
 read the ["Role Variables" section of this documentation](#role-variables).
 
-Setting up multiple WireGuard Interfaces
-========================================
+### Setting up multiple WireGuard Interfaces
 
 Using this role you can set up multiple WireGuard interfaces on the same
 machine that are managed by OpenWISP independently. You will have to
@@ -149,15 +146,13 @@ WireGuard interfaces.
     openwisp2_wireguard_flask_port: 8082
 ```
 
-Gotchas
--------
+### Gotchas
 
 - While creating VPN server objects in OpenWISP, ensure that `interface name`
   and `port` are unique for each VPN. Otherwise, the update scripts will
   not work properly due to conflicts.
 
-Role Variables
-==============
+## Role Variables
 
 This role has many variables values that can be changed to best suit
 your needs.
@@ -218,8 +213,11 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_vxlan_ipv6_method: disabled
 ```
 
-How to run tests
-----------------
+## Contributing
+
+Please read the [OpenWISP contributing guidelines](http://openwisp.io/docs/developer/contributing.html).
+
+### How to run tests
 
 If you want to contribute to `ansible-wireguard-openwisp` you should run tests
 in your development environment to ensure your changes are not breaking anything.
@@ -268,17 +266,10 @@ If you don't get any error message it means that the tests ran successfully with
 
 **ProTip:** Use `molecule test -s local --destroy=never` to speed up subsequent test runs.
 
-Contributing
-============
+## License
 
-Please read the [OpenWISP contributing guidelines](http://openwisp.io/docs/developer/contributing.html).
+See [LICENSE](https://github.com/openwisp/ansible-wireguard-openwisp/blob/main/LICENSE).
 
-License
-=======
-
-See [LICENSE](https://github.com/openwisp/openwisp-notifications/blob/master/LICENSE).
-
-Support
-=======
+## Support
 
 See [OpenWISP Support Channels](http://openwisp.org/support.html).
