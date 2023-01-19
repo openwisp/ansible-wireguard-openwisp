@@ -4,6 +4,6 @@
   hosts: all
   become: true
   roles:
-    - role: ansible-wireguard-openwisp
+    - role: openwisp.wireguard_openwisp
   vars_files:
     - ../vars/main.yml
