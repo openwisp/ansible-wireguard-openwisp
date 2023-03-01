@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.0.2 [2023-03-01]
+
+### Fixes
+
+- Removed deprecated ansible-command args
+
 ## Version 1.0.1 [2022-08-31]
 
 ### Changes
