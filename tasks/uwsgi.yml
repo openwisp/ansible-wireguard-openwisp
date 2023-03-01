@@ -19,8 +19,6 @@
     -keyout {{ openwisp2_wireguard_ssl_key }} \
     -out {{ openwisp2_wireguard_ssl_cert }} \
     -extensions v3_ca creates={{ openwisp2_wireguard_ssl_cert }}
-  args:
-    warn: false
   tags: [ssl]
 
 - name: uwsgi.ini

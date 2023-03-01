@@ -85,8 +85,6 @@
       block:
         - name: Enable PowerTools (CentOS 8)
           command: yum config-manager --set-enabled powertools
-          args:
-            warn: false
           when: ansible_distribution == 'CentOS'
         - name: Enable cloudready-builder (RHEL 8)
           command: subscription-manager repos --enable codeready-builder-for-rhel-8-$(arch)-rpms
