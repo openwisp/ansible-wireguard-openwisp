@@ -12,10 +12,10 @@ galaxy_info:
   platforms:
     - name: Debian
       versions:
-        - buster
+        - bullseye
     - name: Ubuntu
       versions:
-        - bionic
+        - jammy
         - focal
     - name: CentOS
       versions:
