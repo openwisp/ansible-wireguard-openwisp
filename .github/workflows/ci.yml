@@ -19,11 +19,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - distro: ubuntu1804
-            ansible_interpreter: /usr/bin/python3
           - distro: ubuntu2004
             ansible_interpreter: /usr/bin/python3
-          - distro: debian10
+          - distro: ubuntu2204
+            ansible_interpreter: /usr/bin/python3
+          - distro: debian11
             ansible_interpreter: /usr/bin/python3
           - distro: centos7
             ansible_interpreter: /usr/bin/python2
@@ -43,7 +43,7 @@ jobs:
       - name: Install python dependencies
         run: |
           pip install -U pip wheel setuptools
-          pip install molecule[docker,ansible] yamllint ansible-lint docker
+          pip install molecule molecule-plugins[docker] yamllint ansible-lint docker
           pip install openwisp-utils[qa]
 
       - name: Install Ansible Galaxy dependencies
