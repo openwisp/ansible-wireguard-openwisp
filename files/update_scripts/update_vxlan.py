@@ -151,8 +151,9 @@ for connection_name in local_tunnels.keys():
 for connection_name, tunnel_data in remote_tunnels.items():
     vni = tunnel_data[0]['vni']
     remote = tunnel_data[0]['remote']
-    interface = tunnel_data[0].get('interface', 'vxlan')
-    interface = f'{interface}{vni}'
+    interface = tunnel_data[0].get('interface', None)
+    if not interface:
+        interface = f'vxlan{vni}'
     if connection_name not in local_tunnels:
         Nmcli.add_connection(interface, vni, remote)
         print(f'Added {connection_name}')
