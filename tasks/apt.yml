@@ -27,6 +27,7 @@
       - python3
       - cron
       - network-manager
+      - bridge-utils
       - wireguard
     state: latest
   ignore_errors: true

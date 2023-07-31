@@ -42,6 +42,7 @@
       - make
       - cronie
       - NetworkManager
+      - bridge-utils
       - supervisor
     state: latest
   ignore_errors: true

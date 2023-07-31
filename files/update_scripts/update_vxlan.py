@@ -22,20 +22,23 @@ except FileNotFoundError as e:
     sys.exit(2)
 
 try:
-    peers = json.loads(contents)
-    assert isinstance(peers, list)
+    tunnels = json.loads(contents)
+    assert isinstance(tunnels, list)
 except Exception as e:
     print(f'Error while parsing JSON file: {e}', file=sys.stderr)
     sys.exit(3)
 
 
-remote_peers = {}
+remote_tunnels = {}
 
-for peer in peers:
-    remote_peers[f'vxlan-vxlan{peer["vni"]}'] = peer
+for tunnel in tunnels:
+    try:
+        remote_tunnels[f'vxlan-vxlan{tunnel["vni"]}'].append(tunnel)
+    except KeyError:
+        remote_tunnels[f'vxlan-vxlan{tunnel["vni"]}'] = [tunnel]
 
 
-class Nmcli:
+class Base(object):
     @classmethod
     def _exec_command(cls, command):
         process = subprocess.Popen(
@@ -46,6 +49,8 @@ class Nmcli:
             raise ValueError(stderr)
         return stdout.decode('utf8').strip()
 
+
+class Nmcli(Base):
     @classmethod
     def list_connections(cls, type=None):
         output = cls._exec_command('nmcli connection show')
@@ -74,7 +79,7 @@ class Nmcli:
         return data
 
     @classmethod
-    def get_local_vxlan_peers(cls):
+    def get_local_vxlan_tunnels(cls):
         peers = {}
         vxlan_connections = cls.list_connections(type='vxlan')
         for vxlan in vxlan_connections:
@@ -104,25 +109,70 @@ class Nmcli:
         return cls._exec_command(f'sudo nmcli connection delete {connection}')
 
 
-local_peers = Nmcli.get_local_vxlan_peers()
+class Bridge(Base):
+    @classmethod
+    def list_vxlan_peers(cls, interface=None):
+        command = 'sudo bridge fdb show'
+        if interface:
+            command += f' dev {interface}'
+        output = cls._exec_command(command)
+        lines = output.split('\n')
+        peers = []
+        remote_ip_index = 2 if interface else 4
+        for line in lines:
+            parts = line.split()
+            if parts[0].strip() != '00:00:00:00:00:00':
+                continue
+            peers.append(parts[remote_ip_index].strip())
+        return peers
+
+    @classmethod
+    def add_vxlan_peer(cls, peer_ip, interface):
+        cls._exec_command(
+            f'sudo bridge fdb append to 00:00:00:00:00:00 dst {peer_ip} dev {interface}'
+        )
+
+    @classmethod
+    def remove_vxlan_peer(cls, peer_ip, interface):
+        cls._exec_command(
+            'sudo bridge fdb del to 00:00:00:00:00:00'
+            f' dst {peer_ip} dev {interface}'
+        )
 
 
-for connection_name, peer_data in local_peers.items():
-    if connection_name not in remote_peers:
+local_tunnels = Nmcli.get_local_vxlan_tunnels()
+
+
+for connection_name in local_tunnels.keys():
+    if connection_name not in remote_tunnels:
         Nmcli.delete_connection(connection_name)
         print(f'Removed {connection_name}')
 
-
-for connection_name, peer_data in remote_peers.items():
-    vni = peer_data['vni']
-    remote = peer_data['remote']
-    if connection_name not in local_peers:
-        Nmcli.add_connection(f'vxlan{vni}', vni, remote)
+for connection_name, tunnel_data in remote_tunnels.items():
+    vni = tunnel_data[0]['vni']
+    remote = tunnel_data[0]['remote']
+    interface = tunnel_data[0].get('interface', None)
+    if not interface:
+        interface = f'vxlan{vni}'
+    if connection_name not in local_tunnels:
+        Nmcli.add_connection(interface, vni, remote)
         print(f'Added {connection_name}')
-        continue
-    elif peer_data == local_peers[connection_name]:
+    elif tunnel_data == local_tunnels[connection_name]:
         print(f'Skipping {connection_name}, already up to date')
-        continue
     else:
         Nmcli.edit_connection(connection_name, vni, remote)
         print(f'Updated {connection_name}')
+
+    local_vxlan_peers = Bridge.list_vxlan_peers(interface=interface)
+    remote_vxlan_peers = [remote]
+    # Add peers
+    for peer in tunnel_data[1:]:
+        if peer['remote'] not in local_vxlan_peers:
+            Bridge.add_vxlan_peer(peer['remote'], interface)
+            print(f'Added {peer["remote"]} to {interface}')
+        remote_vxlan_peers.append(peer['remote'])
+    # Remove peers
+    for peer in local_vxlan_peers:
+        if peer not in remote_vxlan_peers:
+            Bridge.remove_vxlan_peer(peer, interface)
+            print(f'Removed {peer} from {interface}')
