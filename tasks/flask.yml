@@ -8,6 +8,14 @@
     mode: 0770
   tags: [wireguard]
 
+- name: Create Wireguard log directory
+  file:
+    path: "{{ openwisp2_wireguard_path }}/log"
+    state: directory
+    group: "{{ openwisp_group }}"
+    mode: 0770
+  tags: [wireguard]
+
 - name: update_wireguard.sh
   template:
     src: update_scripts/update_wireguard.sh.j2
