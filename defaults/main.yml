@@ -8,12 +8,15 @@ openwisp2_wireguard_curl_insecure: false
 openwisp2_wireguard_controller_url: "https://{{ inventory_hostname }}"
 openwisp2_wireguard_vpn_uuid: false
 openwisp2_wireguard_vpn_key: false
+openwisp2_wirguard_flask_logging_level: "INFO"
+openwisp2_wirguard_flask_logging_file: "/log/openwisp-flash-vpntrigger.log"
+openwisp2_wirguard_flask_logging_file_size: "104857600" #100MB
+openwisp2_wirguard_flask_logging_file_count: "10"
 openwisp2_wireguard_flask_key: false
 openwisp2_wireguard_flask_port: 8081
 openwisp2_wireguard_flask_host: 0.0.0.0
 openwisp2_wireguard_flask_endpoint: "/trigger-update"
 openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
-
 openwisp2_wireguard_vxlan_ipv4_method: link-local
 openwisp2_wireguard_vxlan_ipv6_method: link-local
 
