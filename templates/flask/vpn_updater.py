@@ -38,7 +38,7 @@ def _exec_command(command):
         raise subprocess.SubprocessError()
 
 
-@app.route('/trigger-update', methods=['POST'])
+@app.route('{{ openwisp2_wireguard_flask_endpoint }}', methods=['POST'])
 def update_vpn_config():
     app.logger.info("Received request to update VPN config")
     print("Received request to update VPN config")
@@ -82,7 +82,6 @@ def update_vpn_config():
 def handle_500_error(exception):
     app.logger.error("An internal error occurred: %s", str(exception))
     return Response(status=500)
-from flask import Flask, Response
 
 @app.after_request
 def set_csp(response):
