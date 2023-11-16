@@ -211,6 +211,14 @@ Below are listed all the variables you can customize
     # Sets the ipv4.method of VXLAN connection, defaults to "link-local"
     openwisp2_wireguard_vxlan_ipv4_method: disabled
     openwisp2_wireguard_vxlan_ipv6_method: disabled
+    #set the log level for flask logging
+    openwisp2_wirguard_flask_logging_level: "INFO"
+    #where to store the flask logs
+    openwisp2_wirguard_flask_logging_file: "/log/openwisp-flask-vpntrigger.log"
+    #How big should we let the logfile grow before we rotate?
+    openwisp2_wirguard_flask_logging_file_size: "104857600" #100MB
+    #How many files should we keep before we overwrite?
+    openwisp2_wirguard_flask_logging_file_count: "10"
 ```
 
 ## Contributing

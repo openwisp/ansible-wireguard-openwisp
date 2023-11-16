@@ -41,7 +41,6 @@ def _exec_command(command):
 @app.route('{{ openwisp2_wireguard_flask_endpoint }}', methods=['POST'])
 def update_vpn_config():
     app.logger.info("Received request to update VPN config")
-    print("Received request to update VPN config")
     #changed this so we can do input validation and prevent timing hacks
     provided_key = request.args.get('key')
 
