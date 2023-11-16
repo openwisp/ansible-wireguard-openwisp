@@ -9,7 +9,7 @@ openwisp2_wireguard_controller_url: "https://{{ inventory_hostname }}"
 openwisp2_wireguard_vpn_uuid: false
 openwisp2_wireguard_vpn_key: false
 openwisp2_wirguard_flask_logging_level: "INFO"
-openwisp2_wirguard_flask_logging_file: "/log/openwisp-flask-vpntrigger.log"
+openwisp2_wirguard_flask_logging_file: "/log/openwisp-flash-vpntrigger.log"
 openwisp2_wirguard_flask_logging_file_size: "104857600" #100MB
 openwisp2_wirguard_flask_logging_file_count: "10"
 openwisp2_wireguard_flask_key: false
