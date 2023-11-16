@@ -10,6 +10,7 @@ VPN_UUID="{{ openwisp2_wireguard_vpn_uuid }}"
 VPN_KEY="{{ openwisp2_wireguard_vpn_key }}"
 # make sure this directory is writable by the user which calls the script
 CONF_DIR="{{ openwisp2_wireguard_path }}"
+LOGGING_LEVEL="INFO"  # Set this to INFO, ERROR, or DEBUG
 
 # do not modify these vars
 _VPN_URL_PATH="$BASE_URL/controller/vpn"
@@ -22,20 +23,53 @@ _APPLIED_CONF_DIR="$_WORKING_DIR/current-conf"
 _CONF_TAR="$_WORKING_DIR/conf.tar.gz"
 _CURL="curl -s --show-error --fail {% if openwisp2_wireguard_curl_insecure %}--insecure{% endif %}"
 
+
 mkdir -p $_WORKING_DIR
 mkdir -p $_APPLIED_CONF_DIR
 
 assert_exit_code() {
-    exit_code=$?
-    lineno=$(($1-1))
+    exit_code=$1
+    lineno=$2
     if [ "$exit_code" != "0" ]; then
-        echo "Line $lineno: Command returned non zero exit code: $exit_code"
+        log_with_timestamp "ERROR" "Error at line $lineno: Command returned non-zero exit code: $exit_code"
         exit $exit_code
     fi
 }
 
+log_level_map() {
+    case "$1" in
+        DEBUG) echo 3;;
+        INFO) echo 2;;
+        ERROR) echo 1;;
+        *) echo 0;;
+    esac
+}
+
+log_with_timestamp() {
+    local level=$1
+    local message=$2
+    local log_level_val=$(log_level_map "$level")
+    local current_log_level_val=$(log_level_map "$LOGGING_LEVEL")
+
+    if [ "$log_level_val" -le "$current_log_level_val" ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] - $message"
+    fi
+}
+
+
+execute_curl() {
+    local url=$1
+    local output
+    output=$($_CURL "$url" 2>&1)  # Capture both stdout and stderr
+    if [ -n "$output" ]; then  # Check if output is not empty
+        log_with_timestamp log_with_timestamp "INFO" "$output"
+    fi
+    return ${PIPESTATUS[0]}  # Return the exit status of the curl command
+}
+
+
 check_config() {
-    _latest_checksum=$($_CURL $_VPN_CHECKSUM_URL)
+    _latest_checksum=$(execute_curl "$_VPN_CHECKSUM_URL")
     assert_exit_code $LINENO
     if [ -f "$_CHECKSUM_FILE" ]; then
         _current_checksum=$(cat $_CHECKSUM_FILE)
@@ -44,13 +78,13 @@ check_config() {
     fi
 
     if [ "$_current_checksum" != "$_latest_checksum" ]; then
-        echo "Configuration changed, downloading new configuration..."
+        log_with_timestamp "INFO" "Configuration changed, downloading new configuration..."
         update_config
     fi
 }
 
 clean_old_interface() {
-    echo "Bringing down old wireguard interface $managed_interface_name"
+    log_with_timestamp "INFO" "Bringing down old wireguard interface $managed_interface_name"
     for old_conf_file in $_APPLIED_CONF_DIR/*.conf; do
         [ -e "$old_conf_file" ] || continue
         sudo wg-quick down $old_conf_file
@@ -64,14 +98,15 @@ create_new_interface() {
 }
 
 update_config() {
-    # Set file permissions to 0660, otherwise wg will complain
-    # for having public configurations
     umask 0117;
-    $($_CURL $_VPN_DOWNLOAD_URL > "$_CONF_TAR")
-    assert_exit_code $LINENO
-    echo "Configuration downloaded, extracting it..."
+    log_with_timestamp "INFO" "Starting configuration download..."
+    execute_curl "$_VPN_DOWNLOAD_URL" > "$_CONF_TAR"
+    assert_exit_code $? $LINENO
+    
+    log_with_timestamp "INFO" "Configuration downloaded, extracting it..."
     tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
-    assert_exit_code $LINENO
+    assert_exit_code $? $LINENO
+
     if [ -e "$_MANAGED_INTERFACE" ]; then
         managed_interface_name=$(cat "$_MANAGED_INTERFACE")
     fi
@@ -81,30 +116,31 @@ update_config() {
         filename=$(basename $file)
         interface="${filename%.*}"
 
-        # There is no managed_interface
-        if [ -z ${managed_interface_name+x} ]; then
+        if [ -z "${managed_interface_name+x}" ]; then
+            log_with_timestamp "INFO" "Bringing up new interface $interface..."
             create_new_interface
-        # Current managed interface is not present in new configuration
         elif [ "$managed_interface_name" != "$interface" ]; then
+            log_with_timestamp "INFO" "Cleaning old interface $managed_interface_name..."
             clean_old_interface
-            assert_exit_code $LINENO
+            assert_exit_code $? $LINENO
+            log_with_timestamp "Bringing up new interface $interface..."
             create_new_interface
-            assert_exit_code $LINENO
+            assert_exit_code $? $LINENO
         else
-            # Update the configuration of current managed interface
-            echo "Reloading wireguard interface $interface with config file $file..."
+            log_with_timestamp "INFO" "Reloading wireguard interface $interface with config file $file..."
             wg_conf_filename="$filename-wg"
             sudo wg-quick strip "$CONF_DIR/$filename" > "$CONF_DIR/$wg_conf_filename"
-            assert_exit_code $LINENO
+            assert_exit_code $? $LINENO
             sudo wg syncconf $interface "$CONF_DIR/$wg_conf_filename"
-            assert_exit_code $LINENO
+            assert_exit_code $? $LINENO
             rm "$CONF_DIR/$wg_conf_filename"
         fi
         echo "$interface" > "$_MANAGED_INTERFACE"
         mv -f "$file" "$_APPLIED_CONF_DIR/$filename"
-        assert_exit_code $LINENO
+        assert_exit_code $? $LINENO
     done
 
+    log_with_timestamp "INFO" "Configuration update completed."
     # Save checksum of applied configuration
     echo $_latest_checksum > $_CHECKSUM_FILE
 
@@ -119,9 +155,18 @@ update_config() {
 bring_up_interface() {
     for conf_file in $_APPLIED_CONF_DIR/*.conf; do
         [ -e "$conf_file" ] || continue
-        sudo wg-quick up $conf_file || true
+
+        log_with_timestamp "INFO" "Attempting to bring up interface with config: $conf_file"
+        if sudo wg-quick up $conf_file 2>&1 | log_with_timestamp "INFO"; then
+            log_with_timestamp "INFO" "Successfully brought up interface with config: $conf_file"
+        else
+            log_with_timestamp "ERROR" "Failed to bring up interface with config: $conf_file"
+        fi
     done
+    log_with_timestamp "INFO" "Completed attempting to bring up interfaces."
     exit 0
 }
+
+
 
 "$@"
