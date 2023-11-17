@@ -80,7 +80,7 @@
     day: "*"
     hour: "*"
     minute: "*/5"
-    job: "{{ openwisp2_wireguard_path }}/update_wireguard.sh check_config"
+    job: "sudo /bin/chgrp openwisp {{ openwisp2_wireguard_path }}/vpn_updater.log &&  sudo /bin/chmod 664 {{ openwisp2_wireguard_path }}/vpn_updater.log && {{ openwisp2_wireguard_path }}/update_wireguard.sh check_config"
     state: present
     user: "{{ openwisp_user }}"
   tags: [wireguard, updater_script]

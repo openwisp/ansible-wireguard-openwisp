@@ -27,15 +27,13 @@ def is_script_allowed(script):
 def _exec_command(command):
     process = subprocess.Popen(
         command.split(' '),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         close_fds=True,
     )
-    stdout, stderr = process.communicate()
     exit_code = process.wait(timeout=10)
     if exit_code != 0:
-        app.logger.error("Script execution failed: %s, Error: %s", command, stderr.decode('utf-8'))
+        app.logger.error("Script execution failed: %s", command)
         raise subprocess.SubprocessError()
+
 
 
 @app.route('{{ openwisp2_wireguard_flask_endpoint }}', methods=['POST'])
@@ -73,7 +71,7 @@ def update_vpn_config():
             }
             app.logger.info("Script executed successfully: %s Client info: %s", script, client_info)
         except subprocess.SubprocessError:
-            app.logger.error("Script execution failed: %s", script)
+            app.logger.error("Script execution failed: %s Please check the uswgi log at {{ openwisp2_wireguard_path }}/vpn_updater.log", script )
             return Response(status=500)
     return Response(status=200)
 
