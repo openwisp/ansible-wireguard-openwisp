@@ -28,7 +28,8 @@
     name:
       - "Flask~=2.0.3"
       - "uwsgi~=2.0.19"
-    state: latest
+      - "Werkzeug>=2.0, <3.0"
+    state: present
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
     virtualenv_site_packages: true
