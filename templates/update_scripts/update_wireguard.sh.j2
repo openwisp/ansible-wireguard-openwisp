@@ -59,27 +59,47 @@ log_with_timestamp() {
 
 execute_curl() {
     local url=$1
-    local output
-    output=$($_CURL "$url" 2>&1)  # Capture both stdout and stderr
-    if [ -n "$output" ]; then  # Check if output is not empty
-        log_with_timestamp log_with_timestamp "INFO" "$output"
+    local file_output=$2
+
+    if [ -n "$file_output" ]; then
+        if $_CURL "$url" > "$file_output" 2>&1; then
+            return 0
+        else
+            local exit_code=${PIPESTATUS[0]}
+            log_with_timestamp "ERROR" "curl command failed with exit code $exit_code"
+            return $exit_code
+        fi
+    else
+        if output=$($_CURL "$url" 2>&1); then
+            echo "$output"
+            return 0
+        else
+            local exit_code=$?
+            log_with_timestamp "ERROR" "curl command failed with exit code $exit_code"
+            return $exit_code
+        fi
     fi
-    return ${PIPESTATUS[0]}  # Return the exit status of the curl command
 }
 
 
+
 check_config() {
+    log_with_timestamp "INFO" "Check config called."
     _latest_checksum=$(execute_curl "$_VPN_CHECKSUM_URL")
-    assert_exit_code $LINENO
+    assert_exit_code $? $LINENO
     if [ -f "$_CHECKSUM_FILE" ]; then
+        log_with_timestamp "INFO" "Setting current checksum from $_CHECKSUM_FILE."
         _current_checksum=$(cat $_CHECKSUM_FILE)
     else
+        log_with_timestamp "INFO" "No current checksum."
         _current_checksum=""
     fi
 
     if [ "$_current_checksum" != "$_latest_checksum" ]; then
         log_with_timestamp "INFO" "Configuration changed, downloading new configuration..."
         update_config
+    else
+        log_with_timestamp "INFO" "Configuration has not changed."
     fi
 }
 
@@ -100,12 +120,23 @@ create_new_interface() {
 update_config() {
     umask 0117;
     log_with_timestamp "INFO" "Starting configuration download..."
-    execute_curl "$_VPN_DOWNLOAD_URL" > "$_CONF_TAR"
+    execute_curl "$_VPN_DOWNLOAD_URL" "$_CONF_TAR"
     assert_exit_code $? $LINENO
-    
     log_with_timestamp "INFO" "Configuration downloaded, extracting it..."
-    tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
-    assert_exit_code $? $LINENO
+
+    tar -zxvf $_CONF_TAR -C $CONF_DIR 2>&1 | IFS=$'\n' read -d '' -r -a tar_output
+    exit_code=${PIPESTATUS[0]}
+
+    if [ $exit_code -eq 0 ]; then
+        log_with_timestamp "INFO" "Extracted configuration successfully."
+    else
+        log_with_timestamp "ERROR" "Failed to extract configuration from $_CONF_TAR. Exit code: $exit_code."
+        for line in "${tar_output[@]}"; do
+            log_with_timestamp "ERROR" "$line"
+        done
+    fi
+
+    assert_exit_code $exit_code $LINENO
 
     if [ -e "$_MANAGED_INTERFACE" ]; then
         managed_interface_name=$(cat "$_MANAGED_INTERFACE")
@@ -158,7 +189,7 @@ update_config() {
             log_with_timestamp "ERROR" "Failed to update VXLAN configuration."
         fi
     fi
-
+}
 
 bring_up_interface() {
     for conf_file in $_APPLIED_CONF_DIR/*.conf; do
@@ -173,8 +204,8 @@ bring_up_interface() {
     done
     log_with_timestamp "INFO" "Completed attempting to bring up interfaces."
     exit 0
-}
+    }
 
 
 
-"$@"
+    "$@"
