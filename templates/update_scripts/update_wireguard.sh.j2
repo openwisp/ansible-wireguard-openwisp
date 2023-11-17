@@ -10,7 +10,7 @@ VPN_UUID="{{ openwisp2_wireguard_vpn_uuid }}"
 VPN_KEY="{{ openwisp2_wireguard_vpn_key }}"
 # make sure this directory is writable by the user which calls the script
 CONF_DIR="{{ openwisp2_wireguard_path }}"
-LOGGING_LEVEL="INFO"  # Set this to INFO, ERROR, or DEBUG
+LOGGING_LEVEL="{{ openwisp2_wireguard_update_wireguard_log_level }}"
 
 # do not modify these vars
 _VPN_URL_PATH="$BASE_URL/controller/vpn"
@@ -144,13 +144,21 @@ update_config() {
     # Save checksum of applied configuration
     echo $_latest_checksum > $_CHECKSUM_FILE
 
+    log_with_timestamp "INFO" "Setting VXLAN environment variables."
     export VXLAN_IPV4_METHOD="{{ openwisp2_wireguard_vxlan_ipv4_method }}" \
         VXLAN_IPV6_METHOD="{{ openwisp2_wireguard_vxlan_ipv6_method }}"
+
     if [ -e "$CONF_DIR/vxlan.json" ]; then
-        "$CONF_DIR/update_vxlan.py" "$CONF_DIR/vxlan.json"
-        mv -f "$CONF_DIR/vxlan.json" "$_APPLIED_CONF_DIR/vxlan.json"
+        log_with_timestamp "INFO" "Updating VXLAN configuration using $CONF_DIR/vxlan.json."
+        if "$CONF_DIR/update_vxlan.py" "$CONF_DIR/vxlan.json"; then
+            log_with_timestamp "INFO" "VXLAN configuration updated successfully."
+            mv -f "$CONF_DIR/vxlan.json" "$_APPLIED_CONF_DIR/vxlan.json"
+            log_with_timestamp "INFO" "Moved vxlan.json to $_APPLIED_CONF_DIR."
+        else
+            log_with_timestamp "ERROR" "Failed to update VXLAN configuration."
+        fi
     fi
-}
+
 
 bring_up_interface() {
     for conf_file in $_APPLIED_CONF_DIR/*.conf; do

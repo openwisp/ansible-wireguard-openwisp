@@ -207,7 +207,8 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_python: python2.7
     # virtualenv command for your remote distribution, usually set automcatically
     openwisp2_wireguard_virtualenv_command: "virtualenv"
-
+    # Set this to INFO, ERROR, or DEBUG these are the ONLY LEVELS SUPPORTED INFO is very chatty but informative
+    openwisp2_wireguard_update_wireguard_log_level: "INFO"
     # Sets the ipv4.method of VXLAN connection, defaults to "link-local"
     openwisp2_wireguard_vxlan_ipv4_method: disabled
     openwisp2_wireguard_vxlan_ipv6_method: disabled

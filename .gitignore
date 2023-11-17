@@ -130,4 +130,5 @@ dmypy.json
 
 # Code editor
 .vscode/
-
+*.log
+*.log.ansi
