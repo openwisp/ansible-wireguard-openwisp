@@ -27,6 +27,7 @@
   pip:
     name:
       - "Flask~=2.0.3"
+      - "Werkzeug==2.2.2"
       - "uwsgi~=2.0.19"
     state: latest
     virtualenv: "{{ virtualenv_path }}"
