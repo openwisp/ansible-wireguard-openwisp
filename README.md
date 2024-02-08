@@ -190,6 +190,9 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_flask_port: 8081
     # Host where Flask endpoint is run
     openwisp2_wireguard_flask_host: 0.0.0.0
+    # Set the log level for flask logging.
+    # Allowed values are "INFO", "WARNING" and "ERROR"
+    openwisp2_wireguard_logging_level: "WARNING"
     # Command used to run uwsgi from supervisor
     openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
 
