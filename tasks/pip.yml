@@ -23,11 +23,12 @@
   until: result is success
   notify: reload supervisor
 
-- name: Install Flask and uWSGI
+- name: Install Flask, Werkzeug and uWSGI
   pip:
     name:
       - "Flask~=2.0.3"
       - "uwsgi~=2.0.19"
+      - "Werkzeug>=2.0,<3.0"
     state: latest
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
