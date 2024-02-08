@@ -24,11 +24,15 @@ def _exec_command(command):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         close_fds=True,
+        universal_newlines=True,
     )
-    stdout, stderr = process.communicate()
+    stdout, _ = process.communicate()
     exit_code = process.wait(timeout=10)
     if exit_code != 0:
+        app.logger.error(stdout)
         raise subprocess.SubprocessError()
+    else:
+        app.logger.info(stdout)
 
 
 def _log(level, message, request):
