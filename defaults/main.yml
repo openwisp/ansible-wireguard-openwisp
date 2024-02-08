@@ -12,6 +12,9 @@ openwisp2_wireguard_flask_key: false
 openwisp2_wireguard_flask_port: 8081
 openwisp2_wireguard_flask_host: 0.0.0.0
 openwisp2_wireguard_flask_endpoint: "/trigger-update"
+# Set the log level for flask logging.
+# Allowed values are "INFO", "WARNING" and "ERROR"
+openwisp2_wireguard_logging_level: "WARNING"
 openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
 
 openwisp2_wireguard_vxlan_ipv4_method: link-local
