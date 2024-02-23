@@ -1,41 +1,85 @@
 ---
 
-- name: "[CentOS7] Set virtualenv command"
-  set_fact:
-    openwisp2_wireguard_virtualenv_command: "virtualenv-3"
+- name: "[CentOS7] Install Python packages"
+  # Use the the rh-devtoolset version of gcc when installing
+  # Pythong packages. Without this, installing uwsgi fails.
+  block:
+    - set_fact:
+        openwisp2_wireguard_virtualenv_command: "virtualenv-3"
+    - name: Update pip & related tools
+      pip:
+        name:
+          - pip
+          - setuptools
+          - wheel
+          - attrs
+        state: latest
+        virtualenv: "{{ virtualenv_path }}"
+        virtualenv_python: "{{ openwisp2_wireguard_python }}"
+        virtualenv_site_packages: true
+        virtualenv_command: "{{ openwisp2_wireguard_virtualenv_command }}"
+      retries: 5
+      delay: 10
+      register: result
+      until: result is success
+      notify: reload supervisor
+      environment:
+        PATH: "/opt/rh/devtoolset-9/root/usr/bin:{{ ansible_env.PATH }}"
+        LD_LIBRARY_PATH: "/opt/rh/devtoolset-9/root/usr/lib64"
+    - name: Install Flask, Werkzeug and uWSGI
+      pip:
+        name:
+          - "Flask~=2.0.3"
+          - "uwsgi~=2.0.19"
+          - "Werkzeug>=2.0,<3.0"
+        state: latest
+        virtualenv: "{{ virtualenv_path }}"
+        virtualenv_python: "{{ openwisp2_wireguard_python }}"
+        virtualenv_site_packages: true
+        virtualenv_command: "{{ openwisp2_wireguard_virtualenv_command }}"
+      notify: reload supervisor
+      retries: 5
+      delay: 10
+      register: result
+      until: result is success
+      environment:
+        PATH: "/opt/rh/devtoolset-9/root/usr/bin:{{ ansible_env.PATH }}"
+        LD_LIBRARY_PATH: "/opt/rh/devtoolset-9/root/usr/lib64"
   when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == "7"
 
-- name: Update pip & related tools
-  pip:
-    name:
-      - pip
-      - setuptools
-      - wheel
-      - attrs
-    state: latest
-    virtualenv: "{{ virtualenv_path }}"
-    virtualenv_python: "{{ openwisp2_wireguard_python }}"
-    virtualenv_site_packages: true
-    virtualenv_command: "{{ openwisp2_wireguard_virtualenv_command }}"
-  retries: 5
-  delay: 10
-  register: result
-  until: result is success
-  notify: reload supervisor
+- block:
+  - name: Update pip & related tools
+    pip:
+      name:
+        - pip
+        - setuptools
+        - wheel
+        - attrs
+      state: latest
+      virtualenv: "{{ virtualenv_path }}"
+      virtualenv_python: "{{ openwisp2_wireguard_python }}"
+      virtualenv_site_packages: true
+      virtualenv_command: "{{ openwisp2_wireguard_virtualenv_command }}"
+    retries: 5
+    delay: 10
+    register: result
+    until: result is success
+    notify: reload supervisor
 
-- name: Install Flask, Werkzeug and uWSGI
-  pip:
-    name:
-      - "Flask~=2.0.3"
-      - "uwsgi~=2.0.19"
-      - "Werkzeug>=2.0,<3.0"
-    state: latest
-    virtualenv: "{{ virtualenv_path }}"
-    virtualenv_python: "{{ openwisp2_wireguard_python }}"
-    virtualenv_site_packages: true
-    virtualenv_command: "{{ openwisp2_wireguard_virtualenv_command }}"
-  notify: reload supervisor
-  retries: 5
-  delay: 10
-  register: result
-  until: result is success
+  - name: Install Flask, Werkzeug and uWSGI
+    pip:
+      name:
+        - "Flask~=2.0.3"
+        - "uwsgi~=2.0.19"
+        - "Werkzeug>=2.0,<3.0"
+      state: latest
+      virtualenv: "{{ virtualenv_path }}"
+      virtualenv_python: "{{ openwisp2_wireguard_python }}"
+      virtualenv_site_packages: true
+      virtualenv_command: "{{ openwisp2_wireguard_virtualenv_command }}"
+    notify: reload supervisor
+    retries: 5
+    delay: 10
+    register: result
+    until: result is success
+  when: not (ansible_distribution == 'CentOS' and ansible_distribution_major_version == "7")
