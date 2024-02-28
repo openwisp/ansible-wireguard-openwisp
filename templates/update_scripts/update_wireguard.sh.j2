@@ -29,15 +29,18 @@ _CURL="curl -s --show-error --fail {% if openwisp2_wireguard_curl_insecure %}--i
 mkdir -p $_WORKING_DIR
 mkdir -p $_APPLIED_CONF_DIR
 
-# Function to map logging levels to their corresponding numerical values
 get_log_level_value() {
     case "$1" in
-    INFO) echo 1 ;;
-    WARNING) echo 2 ;;
-    ERROR) echo 3 ;;
-    # If an unknown log level is provided, it will default to INFO.
-    # This scenario is not expected to occur under normal circumstances.
-    *) echo 1 ;;
+        INFO)
+            echo 1 ;;
+        WARNING)
+            echo 2 ;;
+        ERROR)
+            echo 3 ;;
+        *)
+            # If an unknown log level is provided, it will default to INFO.
+            # This scenario is not expected to occur under normal circumstances.
+            echo 1 ;;
     esac
 }
 
