@@ -31,26 +31,28 @@ mkdir -p $_APPLIED_CONF_DIR
 
 # Function to map logging levels to their corresponding numerical values
 get_log_level_value() {
-	case "$1" in
-	INFO) echo 1 ;;
-	WARNING) echo 2 ;;
-	ERROR) echo 3 ;;
-	*) echo 0 ;; # Default level for unknown log levels
-	esac
+    case "$1" in
+    INFO) echo 1 ;;
+    WARNING) echo 2 ;;
+    ERROR) echo 3 ;;
+    # If an unknown log level is provided, it will default to INFO.
+    # This scenario is not expected to occur under normal circumstances.
+    *) echo 1 ;;
+    esac
 }
 
 # Function to log a message with timestamp
 log_with_timestamp() {
-	local log_level="$1" # Logging level (e.g., INFO, WARNING, ERROR)
-	local message="$2"   # Message to log
-	# Get the numerical values for the provided and current logging levels
-	local message_log_level_value=$(get_log_level_value "$log_level")
-	local global_log_level_value=$(get_log_level_value "$LOGGING_LEVEL")
-	# Check if the provided logging level is less than or equal to the current logging level
-	if [ "$message_log_level_value" -ge "$global_log_level_value" ]; then
+    local log_level="$1" # Logging level (e.g., INFO, WARNING, ERROR)
+    local message="$2"   # Message to log
+    # Get the numerical values for the provided and current logging levels
+    local message_log_level_value=$(get_log_level_value "$log_level")
+    local global_log_level_value=$(get_log_level_value "$LOGGING_LEVEL")
+    # Check if the provided logging level is less than or equal to the current logging level
+    if [ "$message_log_level_value" -ge "$global_log_level_value" ]; then
         # Print the timestamp, logging level, and message
         echo "$(date '+%Y-%m-%d %H:%M:%S') [$log_level] - $message"
-	fi
+    fi
 }
 
 assert_exit_code() {
@@ -59,28 +61,28 @@ assert_exit_code() {
     # line number and exit code, and exits the program.
     # If the optional second argument is provided,
     # it is added to the log message
-	exit_code=$?
-	lineno=$(($1 - 1))
-	if [ "$exit_code" != "0" ]; then
+    exit_code=$?
+    lineno=$(($1 - 1))
+    if [ "$exit_code" != "0" ]; then
         local message="Error at line $lineno: Command returned non-zero exit code: $exit_code"
         if [ -n "$2" ]; then
             # Add the second argument to the log message
-        	message="$message. $2"
+            message="$message. $2"
         fi
         log_with_timestamp "ERROR" "$message"
         exit $exit_code
-	fi
+    fi
 }
 
 check_config() {
-	log_with_timestamp "INFO" "Checking if configuration has changed"
+    log_with_timestamp "INFO" "Checking if configuration has changed"
     _latest_checksum=$($_CURL $_VPN_CHECKSUM_URL)
     assert_exit_code $LINENO "Failed to fetch checksum from '$_VPN_CHECKSUM_URL'"
-	log_with_timestamp "INFO" "Retrieved configuration checksum"
+    log_with_timestamp "INFO" "Retrieved configuration checksum"
     if [ -f "$_CHECKSUM_FILE" ]; then
         log_with_timestamp "INFO" "Setting current checksum from $_CHECKSUM_FILE."
         _current_checksum=$(cat $_CHECKSUM_FILE)
-	else
+    else
         log_with_timestamp "INFO" "Local checksum not found: $_CHECKSUM_FILE is not present."
         _current_checksum=""
     fi
@@ -88,13 +90,13 @@ check_config() {
     if [ "$_current_checksum" != "$_latest_checksum" ]; then
         log_with_timestamp "INFO" "Configuration changed, will download new configuration..."
         update_config
-	else
+    else
         log_with_timestamp "INFO" "Configuration has not changed, exiting!"
     fi
 }
 
 clean_old_interface() {
-	log_with_timestamp "INFO" "Bringing down old wireguard interface $managed_interface_name"
+    log_with_timestamp "INFO" "Bringing down old wireguard interface $managed_interface_name"
     for old_conf_file in $_APPLIED_CONF_DIR/*.conf; do
         [ -e "$old_conf_file" ] || continue
         sudo wg-quick down $old_conf_file
@@ -176,6 +178,9 @@ bring_up_interface() {
     for conf_file in $_APPLIED_CONF_DIR/*.conf; do
         [ -e "$conf_file" ] || continue
         log_with_timestamp "INFO" "Attempting to bring up interface with config: $conf_file"
+        # We don't want to exit the program if only one of many WireGuard interfaces
+        # fails to come up. That's the reason "log_with_timestamp" is used with "||"
+        # instead of "assert_exit_code".
         sudo wg-quick up $conf_file || log_with_timestamp "ERROR" "Failed to bring up interface with config: $conf_file"
         log_with_timestamp "INFO" "Successfully brought up interface with config: $conf_file"
     done
