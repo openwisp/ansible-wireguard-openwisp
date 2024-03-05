@@ -87,12 +87,12 @@
       when: ansible_distribution_major_version == "8"
       tags: [molecule-idempotence-notest]
     - name: CentOS/RHEL 7
+      when: ansible_distribution_major_version == "7"
       block:
         - name: Add jdoss/wireguard repository (CentOS/RHEL 7)
           command: |
             curl -o /etc/yum.repos.d/jdoss-wireguard-epel-7.repo \
              https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-      when: ansible_distribution_major_version == "7"
       tags: [molecule-idempotence-notest]
     - name: Remove kmod-wireguard and elrepo-release
       yum:
@@ -158,6 +158,7 @@
   # The default repositories of CentOS 7 contains an old
   # version of GCC which does not supports the flags used
   # by uWSGI
+  when: ansible_distribution_major_version == "7"
   block:
     - name: Install Software Collections repository
       yum:
@@ -167,4 +168,3 @@
       yum:
         name: devtoolset-9-gcc
         state: present
-  when: ansible_distribution_major_version == "7"
