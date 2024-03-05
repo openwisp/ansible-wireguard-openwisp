@@ -74,14 +74,6 @@
       changed_when: false
       tags: [wireguard]
   rescue:
-    - name: CentOS/RHEL 7
-      block:
-        - name: Add jdoss/wireguard repository (CentOS/RHEL 7)
-          command: |
-            curl -o /etc/yum.repos.d/jdoss-wireguard-epel-7.repo \
-             https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-      when: ansible_distribution_major_version == "7"
-      tags: [molecule-idempotence-notest]
     - name: CentOS/RHEL 8
       block:
         - name: Enable PowerTools (CentOS 8)
@@ -93,6 +85,14 @@
         - name: Enable jdoss/wireguard repository
           command: yum copr enable jdoss/wireguard -y
       when: ansible_distribution_major_version == "8"
+      tags: [molecule-idempotence-notest]
+    - name: CentOS/RHEL 7
+      when: ansible_distribution_major_version == "7"
+      block:
+        - name: Add jdoss/wireguard repository (CentOS/RHEL 7)
+          command: |
+            curl -o /etc/yum.repos.d/jdoss-wireguard-epel-7.repo \
+             https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
       tags: [molecule-idempotence-notest]
     - name: Remove kmod-wireguard and elrepo-release
       yum:
@@ -153,3 +153,18 @@
   delay: 10
   register: result
   until: result is success
+
+- name: Install the latest version of GCC
+  # The default repositories of CentOS 7 contains an old
+  # version of GCC which does not supports the flags used
+  # by uWSGI
+  when: ansible_distribution_major_version == "7"
+  block:
+    - name: Install Software Collections repository
+      yum:
+        name: centos-release-scl
+        state: present
+    - name: Install latest version of gcc
+      yum:
+        name: devtoolset-9-gcc
+        state: present
