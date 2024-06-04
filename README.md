@@ -216,6 +216,18 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_vxlan_ipv6_method: disabled
 ```
 
+## Troubleshooting
+
+Here's how to trigger the configuration check manually if needed:
+
+```
+sudo -u openwisp /opt/wireguard-openwisp/update_wireguard.sh check_config
+```
+
+Logs of the application which is responsible to update the wireguard
+configuration downloaded from the OpenWISP server can be found
+at `/opt/wireguard-openwisp/vpn_updater.log`.
+
 ## Contributing
 
 Please read the [OpenWISP contributing guidelines](http://openwisp.io/docs/developer/contributing.html).
