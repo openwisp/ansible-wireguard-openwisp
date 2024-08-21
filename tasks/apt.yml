@@ -29,6 +29,7 @@
       - network-manager
       - bridge-utils
       - wireguard
+      - curl
     state: latest
   ignore_errors: true
   retries: 5

@@ -7,3 +7,5 @@ openwisp2_wireguard_flask_key: "flask-key"
 openwisp2_wireguard_path: /opt/wireguard-openwisp
 openwisp2_wireguard_flask_endpoint: '/trigger-update'
 openwisp2_wireguard_flask_port: '8081'
+openwisp_group: "openwisp"
+openwisp_user: "openwisp"

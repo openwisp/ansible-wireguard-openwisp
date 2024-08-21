@@ -7,7 +7,23 @@
 
   vars_files:
     - ../vars/main.yml
+    - ../../vars/main.yml
 
+  pre_tasks:
+    # Overwriting update_wireguard.sh script to allow testing the Flask app
+    # since the update_wireguard.sh will try to download VPN configuration f
+    # rom OpenWISP which is not present here.
+    - name: Copy update_wireguard.sh
+      copy:
+        content: |
+          #!/bin/bash
+          exit 0
+        dest: "{{ openwisp2_wireguard_path }}/update_wireguard.sh"
+        group: "{{ openwisp_group }}"
+        mode: 0750
+      tags: [wireguard, updater_script]
+    - name: reload supervisor
+      command: supervisorctl reload
   tasks:
     - name: Test Flask WireGuard Updater
       block:
@@ -17,6 +33,10 @@
             validate_certs: false
             method: "POST"
             status_code: [200]
+          register: _result
+          until: _result.status == 200
+          retries: 5
+          delay: 5
         - name: Test with wrong auth token
           uri:
             url: "https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}?key=wrong-auth-token"
@@ -31,3 +51,4 @@
         - name: Show Flask log
           debug:
             var: flask_log
+          failed_when: true
