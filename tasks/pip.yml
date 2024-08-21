@@ -10,6 +10,7 @@
         - setuptools
         - wheel
         - attrs
+        - importlib-metadata
       state: latest
       virtualenv: "{{ virtualenv_path }}"
       virtualenv_python: "{{ openwisp2_wireguard_python }}"
@@ -23,9 +24,9 @@
   - name: Install Flask, Werkzeug and uWSGI
     pip:
       name:
-        - "Flask~=2.0.3"
-        - "uwsgi~=2.0.19"
-        - "Werkzeug>=2.0,<3.0"
+        - "Flask~=3.0.3"
+        - "uwsgi~=2.0.26"
+        - "Werkzeug~=3.0.3"
       state: latest
       virtualenv: "{{ virtualenv_path }}"
       virtualenv_python: "{{ openwisp2_wireguard_python }}"
