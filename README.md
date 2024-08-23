@@ -13,7 +13,7 @@ manual intervention.
 This role can also configure scripts to allow OpenWISP manage
 [VXLAN over WireGuard](https://github.com/openwisp/openwisp-controller/#how-to-setup-vxlan-over-wireguard-tunnels) tunnels.
 
-Tested on **Debian**, **Ubuntu** and **CentOS**.
+Tested on **Debian** and **Ubuntu**.
 
 **NOTE**: it is highly suggested to use this procedure on clean
 virtual machines or linux containers.
@@ -267,8 +267,6 @@ pip install molecule[docker,ansible] yamllint ansible-lint docker
 docker pull geerlingguy/docker-ubuntu2204-ansible:latest
 docker pull geerlingguy/docker-ubuntu2004-ansible:latest
 docker pull geerlingguy/docker-debian11-ansible:latest
-docker pull geerlingguy/docker-centos77-ansible:latest
-docker pull geerlingguy/docker-centos8-ansible:latest
 ```
 
 **Step 5**: Run molecule test

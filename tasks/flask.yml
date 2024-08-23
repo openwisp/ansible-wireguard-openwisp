@@ -86,11 +86,6 @@
     mode: 0754
   tags: [flask]
 
-- name: "[CentOS/RedHat] Set extension and path for supervisor configuration"
-  set_fact:
-    supervisord_conf_extension: "ini"
-    supervisor_conf_path: "/etc/supervisord.d"
-  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
 
 - name: "[Ubuntu/Debian] Set extension and path for supervisor configuration"
   set_fact:
