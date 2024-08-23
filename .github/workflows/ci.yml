@@ -13,7 +13,7 @@ on:             # yamllint disable-line rule:truthy
 jobs:
   build:
     name: Build ${{ matrix.distro }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
@@ -24,10 +24,6 @@ jobs:
           - distro: ubuntu2204
             ansible_interpreter: /usr/bin/python3
           - distro: debian11
-            ansible_interpreter: /usr/bin/python3
-          - distro: centos7
-            ansible_interpreter: /usr/bin/python2
-          - distro: centos8
             ansible_interpreter: /usr/bin/python3
 
     steps:
