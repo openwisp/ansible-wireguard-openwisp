@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 1.2.0 [2024-09-10]
+
+### Changes
+
+**Dependencies:**
+
+- Bumped `Flask~=3.0.3`
+- Bumped `uwsgi~=2.0.26`
+- Bumped `Werkzeug~=3.0.3`
+- Added support for Debian 12
+- Added support for Ubuntu 24.04
+- Dropped support for CentOS 7 and 8
+
 ## Version 1.1.0 [2024-05-18]
 
 ### Features
