@@ -23,7 +23,11 @@ jobs:
             ansible_interpreter: /usr/bin/python3
           - distro: ubuntu2204
             ansible_interpreter: /usr/bin/python3
+          - distro: ubuntu2404
+            ansible_interpreter: /usr/bin/python3
           - distro: debian11
+            ansible_interpreter: /usr/bin/python3
+          - distro: debian12
             ansible_interpreter: /usr/bin/python3
 
     steps:
