@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.2.0 [2024-09-09]
+## Version 1.2.0 [2024-09-10]
 
 ### Changes
 
