@@ -24,4 +24,4 @@ jobs:
 
       - name: Update imports on Ansible Galaxy
         run: |
-          ansible-galaxy role import --api-key ${{ secrets.GALAXY_API_KEY }} openwisp wireguard_openwisp
+          ansible-galaxy role import openwisp ansible-wireguard-openwisp --api-key ${{ secrets.GALAXY_API_KEY }} --role-name wireguard_openwisp
