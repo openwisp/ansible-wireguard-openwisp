@@ -8,6 +8,7 @@
       - wheel
       - attrs
       - importlib-metadata
+      - packaging
     state: latest
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
