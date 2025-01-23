@@ -2,13 +2,7 @@
 
 - name: Update pip & related tools
   pip:
-    name:
-      - pip
-      - setuptools
-      - wheel
-      - attrs
-      - importlib-metadata
-      - packaging
+    name: pip
     state: latest
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
@@ -20,13 +14,14 @@
   until: result is success
   notify: reload supervisor
 
-- name: Install Flask, Werkzeug and uWSGI
+- name: Read local requirements.txt
+  local_action: command cat requirements.txt
+  register: requirements
+
+- name: Install Python modules from requirements.txt
   pip:
-    name:
-      - "Flask~=3.0.3"
-      - "uwsgi~=2.0.26"
-      - "Werkzeug~=3.0.3"
-    state: latest
+    name: "{{ requirements.stdout_lines }}"
+    state: present
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
     virtualenv_site_packages: true
@@ -36,3 +31,6 @@
   delay: 10
   register: result
   until: result is success
+
+
+
