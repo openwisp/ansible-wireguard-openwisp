@@ -1,0 +1,8 @@
+setuptools
+wheel
+attrs
+importlib-metadata
+packaging
+Flask~=3.0.3
+Werkzeug~=3.0.3
+uwsgi~=2.0.26
