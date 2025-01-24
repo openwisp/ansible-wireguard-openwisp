@@ -1,8 +1,13 @@
 ---
-
-- name: Update pip
+- name: Update pip & related tools
   pip:
-    name: pip
+    name:
+      - pip
+      - setuptools
+      - wheel
+      - attrs
+      - importlib-metadata
+      - packaging
     state: latest
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
@@ -14,14 +19,15 @@
   until: result is success
   notify: reload supervisor
 
-- name: Read local requirements.txt
-  local_action: command cat {{ role_path }}/requirements.txt
-  register: requirements
+- name: Copy requirements.txt to virtualenv
+  copy:
+    src: "../requirements.txt"
+    dest: "{{ virtualenv_path }}/requirements.txt"
+  register: requirements_copy
 
-- name: Install Python modules from requirements.txt
+- name: Install Python packages from requirements.txt
   pip:
-    name: "{{ requirements.stdout_lines }}"
-    state: present
+    requirements: "{{ virtualenv_path }}/requirements.txt"
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
     virtualenv_site_packages: true
@@ -29,5 +35,6 @@
   notify: reload supervisor
   retries: 5
   delay: 10
-  register: result
+  register: result 
   until: result is success
+  when: requirements_copy is changed
