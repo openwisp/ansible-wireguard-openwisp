@@ -1,5 +1,6 @@
 ---
-- name: Update pip & related tools
+
+- name: Update Pip & related tools
   pip:
     name:
       - pip
@@ -19,13 +20,13 @@
   until: result is success
   notify: reload supervisor
 
-- name: Copy requirements.txt to virtualenv
+- name: Copy Requirements.txt to virtualenv
   copy:
     src: "../requirements.txt"
     dest: "{{ virtualenv_path }}/requirements.txt"
   register: requirements_copy
 
-- name: Install Python packages from requirements.txt
+- name: Install Python packages from Requirements.txt
   pip:
     requirements: "{{ virtualenv_path }}/requirements.txt"
     virtualenv: "{{ virtualenv_path }}"
