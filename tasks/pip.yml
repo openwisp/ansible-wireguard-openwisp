@@ -20,7 +20,7 @@
   until: result is success
   notify: reload supervisor
 
-- name: Copy Requirements.txt to virtualenv
+- name: Copy requirements.txt to virtualenv dir
   copy:
     src: "../requirements.txt"
     dest: "{{ virtualenv_path }}/requirements.txt"
