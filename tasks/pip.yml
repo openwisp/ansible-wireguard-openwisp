@@ -1,3 +1,4 @@
+# tasks/pip.yml
 ---
 
 - name: Update pip & related tools
@@ -20,15 +21,15 @@
   until: result is success
   notify: reload supervisor
 
-- name: Copy requirements.txt to virtualenv dir
+- name: Copy requirements.txt
   copy:
-    src: "../requirements.txt"
-    dest: "{{ virtualenv_path }}/requirements.txt"
+    src: requirements.txt
+    dest: "{{ openwisp2_wireguard_path }}/requirements.txt"
   register: requirements_copy
 
 - name: Install Python dependencies
   pip:
-    requirements: "{{ virtualenv_path }}/requirements.txt"
+    requirements: "{{ openwisp2_wireguard_path }}/requirements.txt"
     virtualenv: "{{ virtualenv_path }}"
     virtualenv_python: "{{ openwisp2_wireguard_python }}"
     virtualenv_site_packages: true
@@ -38,4 +39,3 @@
   delay: 10
   register: result
   until: result is success
-  when: requirements_copy is changed
