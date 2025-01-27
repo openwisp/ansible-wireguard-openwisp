@@ -26,7 +26,7 @@
     dest: "{{ virtualenv_path }}/requirements.txt"
   register: requirements_copy
 
-- name: Install Python packages from Requirements.txt
+- name: Install Python dependencies
   pip:
     requirements: "{{ virtualenv_path }}/requirements.txt"
     virtualenv: "{{ virtualenv_path }}"
