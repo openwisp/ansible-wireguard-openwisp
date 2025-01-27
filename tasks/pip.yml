@@ -1,6 +1,6 @@
 ---
 
-- name: Update Pip & related tools
+- name: Update pip & related tools
   pip:
     name:
       - pip
