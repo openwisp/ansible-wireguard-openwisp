@@ -36,6 +36,6 @@
   notify: reload supervisor
   retries: 5
   delay: 10
-  register: result 
+  register: result
   until: result is success
   when: requirements_copy is changed
