@@ -24,7 +24,6 @@
   copy:
     src: requirements.txt
     dest: "{{ openwisp2_wireguard_path }}/requirements.txt"
-  register: requirements_copy
 
 - name: Install Python dependencies
   pip:
@@ -38,4 +37,3 @@
   delay: 10
   register: result
   until: result is success
-  
