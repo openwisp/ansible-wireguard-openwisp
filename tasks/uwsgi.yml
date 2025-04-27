@@ -6,6 +6,7 @@
     state: directory
     mode: 0770
     group: "{{ openwisp_group }}"
+  tags: [ssl]
 
 - name: Create SSL cert if not exists yet
   become: true
@@ -19,6 +20,41 @@
     -keyout {{ openwisp2_wireguard_ssl_key }} \
     -out {{ openwisp2_wireguard_ssl_cert }} \
     -extensions v3_ca creates={{ openwisp2_wireguard_ssl_cert }}
+  tags: [ssl]
+
+- name: Add renewal hook for certbot
+  when:
+    - openwisp2_wireguard_ssl_cert is defined
+    - '"etc/letsencrypt/live/" in openwisp2_wireguard_ssl_cert'
+  block:
+    - name: Check if certbot is installed
+      command: which certbot
+      register: certbot_check
+      changed_when: false
+      failed_when: false
+      check_mode: no
+    - name: Ensure certbot renewal post hook directory exists
+      file:
+        path: /etc/letsencrypt/renewal-hooks/post
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      when:
+        - certbot_check.rc == 0
+        - certbot_check.stdout != ""
+    - name: Create renewal hook to restart uwsgi
+      copy:
+        dest: /etc/letsencrypt/renewal-hooks/post/restart-openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}.sh
+        content: |
+          #!/bin/bash
+          supervisorctl restart openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}
+        owner: root
+        group: root
+        mode: '0750'
+      when:
+        - certbot_check.rc == 0
+        - certbot_check.stdout != ""
   tags: [ssl]
 
 - name: uwsgi.ini
