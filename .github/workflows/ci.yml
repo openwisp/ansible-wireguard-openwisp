@@ -19,8 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - distro: ubuntu2004
-            ansible_interpreter: /usr/bin/python3
           - distro: ubuntu2204
             ansible_interpreter: /usr/bin/python3
           - distro: ubuntu2404
