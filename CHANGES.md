@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.2.1 [2025-01-21]
+
+### Fixes
+
+- Upgrade python `packaging` module before
+  installing uWSGI to avoid version incompatibilities.
+
 ## Version 1.2.0 [2024-09-10]
 
 ### Changes

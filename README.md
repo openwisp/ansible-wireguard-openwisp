@@ -1,17 +1,15 @@
 # ansible-wireguard-openwisp
 
-[![Build Status](https://github.com/openwisp/ansible-wireguard-openwisp/workflows/Ansible%20WireGuard%20OpenWISP%20CI%20Build/badge.svg?branch=main)](https://github.com/openwisp/ansible-wireguard-openwisp/actions?query=Ansible+WireGuard+OpenWISP+CI+Build)
-
+[![Ansible WireGuard OpenWISP CI Build](https://github.com/openwisp/ansible-wireguard-openwisp/actions/workflows/ci.yml/badge.svg)](https://github.com/openwisp/ansible-wireguard-openwisp/actions/workflows/ci.yml)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/openwisp/general)
 
 Ansible role that installs WireGuard and management scripts for OpenWISP.
-Once installed and configured correctly with
-[OpenWISP](https://github.com/openwisp/openwisp-controller/#how-to-setup-wireguard-tunnels),
-WireGuard peers are managed automatically by OpenWISP without the need of
-manual intervention.
+Once installed and configured correctly with OpenWISP,
+[WireGuard peers are managed automatically by OpenWISP without the need of
+manual intervention](https://openwisp.io/docs/24.11/controller/user/wireguard.html).
 
 This role can also configure scripts to allow OpenWISP manage
-[VXLAN over WireGuard](https://github.com/openwisp/openwisp-controller/#how-to-setup-vxlan-over-wireguard-tunnels) tunnels.
+[VXLAN over WireGuard](https://openwisp.io/docs/22.05/user/wireguard.html) tunnels.
 
 Tested on **Debian** and **Ubuntu**.
 
