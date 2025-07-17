@@ -26,8 +26,14 @@ def _exec_command(command):
         close_fds=True,
         universal_newlines=True,
     )
-    stdout, _ = process.communicate()
-    exit_code = process.wait(timeout=10)
+    try:
+        stdout, _ = process.communicate(timeout=10)
+        exit_code = process.returncode
+    except subprocess.TimeoutExpired:
+        process.kill()
+        stdout, _ = process.communicate()
+        stdout += "\n***** Command was terminated due to timeout. *****\n"
+        exit_code = -1
     if exit_code != 0:
         app.logger.error(stdout)
         raise subprocess.SubprocessError()

@@ -120,7 +120,17 @@ update_config() {
     log_with_timestamp "INFO" "Starting configuration download..."
     $($_CURL $_VPN_DOWNLOAD_URL > "$_CONF_TAR")
     assert_exit_code $LINENO "Failed to download VPN configuration from $_VPN_DOWNLOAD_URL"
-    log_with_timestamp "INFO" "Configuration downloaded, extracting it..."
+    log_with_timestamp "INFO" "Configuration downloaded, validating checksum..."
+
+    # Validate checksum of downloaded tarball
+    _downloaded_checksum=$(md5sum "$_CONF_TAR" | cut -d' ' -f1)
+    if [ "$_downloaded_checksum" != "$_latest_checksum" ]; then
+        log_with_timestamp "ERROR" "Downloaded tarball checksum ($_downloaded_checksum) does not match expected checksum ($_latest_checksum). Restarting update process..."
+        rm -f "$_CONF_TAR"
+        check_config
+        return
+    fi
+    log_with_timestamp "INFO" "Checksum validation successful, extracting configuration..."
 
     tar -zxvf $_CONF_TAR -C $CONF_DIR > /dev/null
     assert_exit_code $LINENO "Failed to extract configuration from $_CONF_TAR."
@@ -161,10 +171,6 @@ update_config() {
         assert_exit_code $LINENO
     done
 
-    log_with_timestamp "INFO" "Configuration update completed."
-    # Save checksum of applied configuration
-    echo $_latest_checksum > $_CHECKSUM_FILE
-
     export VXLAN_IPV4_METHOD="{{ openwisp2_wireguard_vxlan_ipv4_method }}" \
         VXLAN_IPV6_METHOD="{{ openwisp2_wireguard_vxlan_ipv6_method }}"
     if [ -e "$CONF_DIR/vxlan.json" ]; then
@@ -175,6 +181,10 @@ update_config() {
         mv -f "$CONF_DIR/vxlan.json" "$_APPLIED_CONF_DIR/vxlan.json"
         log_with_timestamp "INFO" "Moved vxlan.json to $_APPLIED_CONF_DIR."
     fi
+
+    log_with_timestamp "INFO" "Configuration update completed."
+    # Save checksum of applied configuration
+    echo $_latest_checksum > $_CHECKSUM_FILE
 }
 
 bring_up_interface() {
