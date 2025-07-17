@@ -193,6 +193,18 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_logging_level: "WARNING"
     # Command used to run uwsgi from supervisor
     openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
+    # Crontab time for executing the wireguard update script
+    openwisp2_wireguard_crontab:
+     # The minute field for the crontab schedule
+      minute: "*/5"
+      # The hour field for the crontab schedule
+      hour: "*"
+      # The day of the month field for the crontab schedule
+      day_of_month: "*"
+      # The month field for the crontab schedule
+      month: "*"
+      # The day of the week field for the crontab schedule
+      day_of_week: "*"
 
     # specify path to a valid SSL certificate and key
     # (a self-signed SSL cert will be generated if omitted)

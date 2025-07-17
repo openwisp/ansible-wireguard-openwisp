@@ -16,6 +16,12 @@ openwisp2_wireguard_flask_endpoint: "/trigger-update"
 # Allowed values are "INFO", "WARNING" and "ERROR"
 openwisp2_wireguard_logging_level: "WARNING"
 openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
+openwisp2_wireguard_crontab:
+  minute: "*/5"
+  hour: "*"
+  day_of_month: "*"
+  month: "*"
+  day_of_week: "*"
 
 openwisp2_wireguard_vxlan_ipv4_method: link-local
 openwisp2_wireguard_vxlan_ipv6_method: link-local
