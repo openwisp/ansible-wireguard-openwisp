@@ -69,9 +69,11 @@
 - name: Add wireguard_update.sh script to cron
   cron:
     name: Run update wireguard periodically {{ openwisp2_wireguard_vpn_uuid }}
-    day: "*"
-    hour: "*"
-    minute: "*/5"
+    minute: "{{ openwisp2_wireguard_crontab.minute }}"
+    hour: "{{ openwisp2_wireguard_crontab.hour }}"
+    day: "{{ openwisp2_wireguard_crontab.day_of_month }}"
+    month: "{{ openwisp2_wireguard_crontab.month }}"
+    weekday: "{{ openwisp2_wireguard_crontab.day_of_week }}"
     job: "{{ openwisp2_wireguard_path }}/update_wireguard.sh check_config"
     state: present
     user: "{{ openwisp_user }}"
