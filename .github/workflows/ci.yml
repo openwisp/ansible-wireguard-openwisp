@@ -49,7 +49,7 @@ jobs:
 
       - name: QA checks
         run: |
-          openwisp-qa-check --skip-isort --skip-flake8 --skip-checkmigrations --skip-black
+          ./run-qa-checks
 
       - name: Tests
         run: molecule test
