@@ -268,7 +268,8 @@ sudo apt-get install docker.io
 **Step 3**: Install molecule and dependencies
 
 ```
-pip install molecule[docker,ansible] yamllint ansible-lint docker
+# from the root of this repository
+pip install -r requirements-test.txt
 ```
 
 **Step 4**: Download docker images
