@@ -1,5 +1,29 @@
 # Changelog
 
+## Version 1.3.0 [2025-08-22]
+
+### Features
+
+- Added crontab support for periodic WireGuard updates
+- Added certbot renewal hook [#43](https://github.com/openwisp/ansible-wireguard-openwisp/issues/43)
+
+### Changes
+
+- Moved Python dependencies to `requirements.txt`
+  to enable automated updates with dependabot
+  [#52](https://github.com/openwisp/ansible-wireguard-openwisp/issues/52)
+
+#### Dependencies
+
+- Bumped `flask` to `~=3.1.1`
+- Bumped `uwsgi` to `~=2.0.30`
+- Updated Flask to `3.1.0` and other minor dependencies
+- Dropped support for Ubuntu 20.04
+
+### Bugfixes
+
+- Retry update if download configuration checksum is invalid [#65](https://github.com/openwisp/ansible-wireguard-openwisp/issues/65)
+
 ## Version 1.2.1 [2025-01-21]
 
 ### Fixes
