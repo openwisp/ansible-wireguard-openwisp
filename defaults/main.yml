@@ -1,5 +1,4 @@
 ---
-
 openwisp2_wireguard_python: python3
 openwisp2_wireguard_virtualenv_command: "virtualenv"
 

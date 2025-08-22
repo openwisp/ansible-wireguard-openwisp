@@ -195,7 +195,7 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
     # Crontab time for executing the wireguard update script
     openwisp2_wireguard_crontab:
-     # The minute field for the crontab schedule
+      # The minute field for the crontab schedule
       minute: "*/5"
       # The hour field for the crontab schedule
       hour: "*"

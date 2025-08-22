@@ -1,5 +1,4 @@
 ---
-
 - name: "[Debian/Ubuntu] Update APT package cache"
   apt:
     update_cache: true
@@ -11,7 +10,7 @@
 
 - name: "[Debian] Enable backports repository"
   apt_repository:
-    repo: 'deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main'
+    repo: "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main"
     state: present
     update_cache: true
   when: ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 11

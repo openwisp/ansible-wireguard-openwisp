@@ -1,5 +1,4 @@
 ---
-
 - name: Show webhook endpoint and webook auth token to use in OpenWISP
   debug:
     msg:

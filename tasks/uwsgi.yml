@@ -1,5 +1,4 @@
 ---
-
 - name: Create "{{ openwisp2_wireguard_path }}/ssl"
   file:
     path: "{{ openwisp2_wireguard_path }}/ssl"
@@ -39,7 +38,7 @@
         state: directory
         owner: root
         group: root
-        mode: '0755'
+        mode: "0755"
       when:
         - certbot_check.rc == 0
         - certbot_check.stdout != ""
@@ -51,7 +50,7 @@
           supervisorctl restart openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}
         owner: root
         group: root
-        mode: '0750'
+        mode: "0750"
       when:
         - certbot_check.rc == 0
         - certbot_check.stdout != ""

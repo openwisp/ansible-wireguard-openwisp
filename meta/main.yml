@@ -1,5 +1,4 @@
 ---
-
 galaxy_info:
   role_name: wireguard_openwisp
   namespace: openwisp
@@ -7,7 +6,7 @@ galaxy_info:
   company: OpenWISP
   description: Role to install OpenWISP's Wireguard Updater
   license: BSD
-  min_ansible_version: 2.10
+  min_ansible_version: "2.10"
   issue_tracker_url: https://github.com/openwisp/ansible-wireguard-openwisp/issues
   platforms:
     - name: Debian

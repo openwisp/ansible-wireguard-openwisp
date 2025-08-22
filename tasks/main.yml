@@ -1,5 +1,4 @@
 ---
-
 - name: Check required variables
   fail: msg="Variable '{{ item }}' is not defined"
   when: item is false

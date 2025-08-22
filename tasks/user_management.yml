@@ -1,5 +1,4 @@
 ---
-
 - name: Create "{{ openwisp_group }}" group
   group:
     name: "{{ openwisp_group }}"

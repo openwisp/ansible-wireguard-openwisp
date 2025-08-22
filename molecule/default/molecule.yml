@@ -1,5 +1,4 @@
 ---
-
 driver:
   name: docker
 lint: |

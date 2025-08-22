@@ -1,5 +1,4 @@
 ---
-
 - name: Create Wireguard directory
   file:
     path: "{{ openwisp2_wireguard_path }}"
@@ -87,7 +86,6 @@
     group: "{{ openwisp_group }}"
     mode: 0754
   tags: [flask]
-
 
 - name: "[Ubuntu/Debian] Set extension and path for supervisor configuration"
   set_fact:

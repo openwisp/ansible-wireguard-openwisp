@@ -1,8 +1,7 @@
 ---
-
 name: Ansible WireGuard OpenWISP CI Build
 
-on:             # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     branches:
       - main
@@ -36,7 +35,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install python dependencies
         run: |
@@ -54,7 +53,7 @@ jobs:
         run: molecule test
         env:
           ROLE_NAME: openwisp2
-          PY_COLORS: '1'
-          ANSIBLE_FORCE_COLOR: '1'
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ matrix.distro }}
           ANSIBLE_PYTHON_INTERPRETER: ${{ matrix.ansible_interpreter }}
