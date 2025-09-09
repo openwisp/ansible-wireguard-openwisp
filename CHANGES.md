@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.3.1 [2025-09-09]
+
+# Bugfixes
+
+- Bring up interface immediately on deployment [#70](https://github.com/openwisp/ansible-wireguard-openwisp/issues/70)
+
 ## Version 1.3.0 [2025-08-22]
 
 ### Features
