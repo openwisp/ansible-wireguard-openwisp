@@ -25,8 +25,8 @@ openwisp2_wireguard_crontab:
 openwisp2_wireguard_vxlan_ipv4_method: link-local
 openwisp2_wireguard_vxlan_ipv6_method: link-local
 
-openwisp2_wireguard_uwsgi_processes: 1
-openwisp2_wireguard_uwsgi_threads: 1
+openwisp2_wireguard_uwsgi_processes: 2
+openwisp2_wireguard_uwsgi_threads: 2
 openwisp2_wireguard_uwsgi_extra_conf: |
   single-interpreter=True
   log-4xx=True
