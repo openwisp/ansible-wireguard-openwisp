@@ -224,6 +224,18 @@ Below are listed all the variables you can customize
     # Sets the ipv4.method of VXLAN connection, defaults to "link-local"
     openwisp2_wireguard_vxlan_ipv4_method: disabled
     openwisp2_wireguard_vxlan_ipv6_method: disabled
+
+    # configure the number of processes and threads
+    openwisp2_wireguard_uwsgi_processes: 2
+    openwisp2_wireguard_uwsgi_threads: 2
+
+    # extra configurations
+    openwisp2_wireguard_uwsgi_extra_conf: |
+      single-interpreter=True
+      log-4xx=True
+      log-5xx=True
+      disable-logging=True
+      auto-procname=True
 ```
 
 ## Troubleshooting

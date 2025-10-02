@@ -25,6 +25,15 @@ openwisp2_wireguard_crontab:
 openwisp2_wireguard_vxlan_ipv4_method: link-local
 openwisp2_wireguard_vxlan_ipv6_method: link-local
 
+openwisp2_wireguard_uwsgi_processes: 2
+openwisp2_wireguard_uwsgi_threads: 2
+openwisp2_wireguard_uwsgi_extra_conf: |
+  single-interpreter=True
+  log-4xx=True
+  log-5xx=True
+  disable-logging=True
+  auto-procname=True
+
 openwisp2_wireguard_required_variables:
   - openwisp2_wireguard_controller_url
   - openwisp2_wireguard_vpn_uuid
