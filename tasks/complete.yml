@@ -2,7 +2,7 @@
 
 - name: Run update_wireguard.sh check_config as openwisp user
   become: true
-  become_user: openwisp
+  become_user: "{{ openwisp_user }}"
   command: "{{ openwisp2_wireguard_path }}/update_wireguard.sh check_config"
   # Skip this task during molecule tests: the OpenWISP Controller is not available
   # inside the test container, so update_wireguard.sh would fail when attempting
