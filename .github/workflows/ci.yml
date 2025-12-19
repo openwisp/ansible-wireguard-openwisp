@@ -26,6 +26,10 @@ jobs:
             ansible_interpreter: /usr/bin/python3
           - distro: debian12
             ansible_interpreter: /usr/bin/python3
+          - distro: centos7
+            ansible_interpreter: /usr/bin/python3
+          - distro: rockylinux8
+            ansible_interpreter: /usr/bin/python3
 
     steps:
       - uses: actions/checkout@v5
