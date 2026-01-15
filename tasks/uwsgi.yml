@@ -7,7 +7,41 @@
     group: "{{ openwisp_group }}"
   tags: [ssl]
 
-- name: Create SSL cert if not exists yet
+- name: Check if SSL certificate exists
+  stat:
+    path: "{{ openwisp2_wireguard_ssl_cert }}"
+  register: ssl_cert_stat
+  tags: [ssl]
+
+- name: Check if SSL certificate has SAN attribute
+  become: true
+  become_user: root
+  shell: |
+    set -o pipefail
+    openssl x509 -in {{ openwisp2_wireguard_ssl_cert }} -noout -ext subjectAltName 2>/dev/null | grep -q "DNS:"
+  args:
+    executable: /bin/bash
+  register: ssl_cert_san_check
+  changed_when: false
+  failed_when: false
+  when: ssl_cert_stat.stat.exists
+  tags: [ssl]
+
+- name: Remove old SSL certificate without SAN attribute
+  become: true
+  become_user: root
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ openwisp2_wireguard_ssl_cert }}"
+    - "{{ openwisp2_wireguard_ssl_key }}"
+  when:
+    - ssl_cert_stat.stat.exists
+    - ssl_cert_san_check.rc != 0
+  tags: [ssl]
+
+- name: Create SSL cert with SAN attribute
   become: true
   become_user: root
   command: >
@@ -18,7 +52,30 @@
     -days 3650 \
     -keyout {{ openwisp2_wireguard_ssl_key }} \
     -out {{ openwisp2_wireguard_ssl_cert }} \
-    -extensions v3_ca creates={{ openwisp2_wireguard_ssl_cert }}
+    -addext "subjectAltName = DNS:{{ openwisp2_wireguard_ssl_common_name }},DNS:localhost,IP:127.0.0.1" \
+    -extensions v3_ca
+  args:
+    creates: "{{ openwisp2_wireguard_ssl_cert }}"
+  register: ssl_cert_created
+  notify: reload supervisor
+  tags: [ssl]
+
+- name: Copy self-signed certificate to local CA store
+  become: true
+  become_user: root
+  copy:
+    src: "{{ openwisp2_wireguard_ssl_cert }}"
+    dest: /usr/local/share/ca-certificates/wireguard_updater_{{ openwisp2_wireguard_vpn_uuid }}.crt
+    remote_src: true
+    mode: 0644
+  register: cert_copied
+  tags: [ssl]
+
+- name: Update CA certificates
+  become: true
+  become_user: root
+  command: update-ca-certificates
+  when: cert_copied.changed
   tags: [ssl]
 
 - name: Add renewal hook for certbot
