@@ -1,5 +1,4 @@
 ---
-
 - name: Run update_wireguard.sh check_config as openwisp user
   become: true
   become_user: openwisp
