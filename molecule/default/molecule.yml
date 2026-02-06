@@ -23,8 +23,10 @@ provisioner:
     verify: ../resources/verify.yml
   config_options:
     defaults:
-      stdout_callback: yaml
+      stdout_callback: default
       bin_ansible_callbacks: true
+    default:
+      result_format: yaml
   inventory:
     host_vars:
       "${ROLE_NAME:-instance}-${MOLECULE_DISTRO}":
