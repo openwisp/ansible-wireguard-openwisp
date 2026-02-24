@@ -1,39 +1,42 @@
 ---
-- name: Create "{{ openwisp2_wireguard_path }}/ssl"
-  file:
+- name: Create SSL directory
+  ansible.builtin.file:
     path: "{{ openwisp2_wireguard_path }}/ssl"
     state: directory
-    mode: 0770
+    mode: "0770"
     group: "{{ openwisp_group }}"
   tags: [ssl]
 
 - name: Create SSL cert if not exists yet
   become: true
   become_user: root
-  command: >
-    openssl req -new -nodes -x509 \
-    -subj "/C={{ openwisp2_wireguard_ssl_country }}/ST={{ openwisp2_wireguard_ssl_state }} \
-           /L={{ openwisp2_wireguard_ssl_locality }}/O={{ openwisp2_wireguard_ssl_organization }} \
-           /CN={{ openwisp2_wireguard_ssl_common_name }}" \
-    -days 3650 \
-    -keyout {{ openwisp2_wireguard_ssl_key }} \
-    -out {{ openwisp2_wireguard_ssl_cert }} \
-    -extensions v3_ca creates={{ openwisp2_wireguard_ssl_cert }}
+  ansible.builtin.command:
+    cmd: >
+      openssl req -new -nodes -x509
+      -subj "/C={{ openwisp2_wireguard_ssl_country }}/ST={{ openwisp2_wireguard_ssl_state }}
+             /L={{ openwisp2_wireguard_ssl_locality }}/O={{ openwisp2_wireguard_ssl_organization }}
+             /CN={{ openwisp2_wireguard_ssl_common_name }}"
+      -days 3650
+      -keyout {{ openwisp2_wireguard_ssl_key }}
+      -out {{ openwisp2_wireguard_ssl_cert }}
+      -extensions v3_ca
+    creates: "{{ openwisp2_wireguard_ssl_cert }}"
   tags: [ssl]
 
 - name: Add renewal hook for certbot
   when:
     - openwisp2_wireguard_ssl_cert is defined
     - '"etc/letsencrypt/live/" in openwisp2_wireguard_ssl_cert'
+  tags: [ssl]
   block:
     - name: Check if certbot is installed
-      command: which certbot
+      ansible.builtin.command: which certbot
       register: certbot_check
       changed_when: false
       failed_when: false
-      check_mode: no
+      check_mode: false
     - name: Ensure certbot renewal post hook directory exists
-      file:
+      ansible.builtin.file:
         path: /etc/letsencrypt/renewal-hooks/post
         state: directory
         owner: root
@@ -43,7 +46,7 @@
         - certbot_check.rc == 0
         - certbot_check.stdout != ""
     - name: Create renewal hook to restart uwsgi
-      copy:
+      ansible.builtin.copy:
         dest: /etc/letsencrypt/renewal-hooks/post/restart-openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}.sh
         content: |
           #!/bin/bash
@@ -54,13 +57,12 @@
       when:
         - certbot_check.rc == 0
         - certbot_check.stdout != ""
-  tags: [ssl]
 
-- name: uwsgi.ini
-  notify: reload supervisor
-  template:
+- name: Deploy uwsgi.ini
+  notify: Reload supervisor
+  ansible.builtin.template:
     src: flask/uwsgi.ini
     dest: "{{ openwisp2_wireguard_path }}/uwsgi.ini"
     group: "{{ openwisp_group }}"
-    mode: 0644
+    mode: "0644"
   tags: [flask]

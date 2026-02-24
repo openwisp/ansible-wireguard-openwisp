@@ -1,10 +1,6 @@
 ---
 driver:
   name: docker
-lint: |
-  set -e
-  yamllint . || true
-  ansible-lint || true
 platforms:
   - name: "${ROLE_NAME:-instance}-${MOLECULE_DISTRO}"
     image: "geerlingguy/docker-${MOLECULE_DISTRO}-ansible:${tag:-latest}"

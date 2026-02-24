@@ -1,24 +1,31 @@
 ---
 - name: Check required variables
-  fail: msg="Variable '{{ item }}' is not defined"
+  ansible.builtin.fail:
+    msg: "Variable '{{ item }}' is not defined"
   when: item is false
   with_items: "{{ openwisp2_wireguard_required_variables }}"
 
-- import_tasks: user_management.yml
+- name: Import user management tasks
+  ansible.builtin.import_tasks: user_management.yml
   tags: [wireguard_openwisp, user_management]
 
-- import_tasks: apt.yml
+- name: Import APT tasks
+  ansible.builtin.import_tasks: apt.yml
   when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
   tags: [wireguard_openwisp, apt]
 
-- import_tasks: pip.yml
+- name: Import pip tasks
+  ansible.builtin.import_tasks: pip.yml
   tags: [wireguard_openwisp, pip]
 
-- import_tasks: flask.yml
+- name: Import flask tasks
+  ansible.builtin.import_tasks: flask.yml
   tags: [wireguard_openwisp, flask]
 
-- import_tasks: uwsgi.yml
+- name: Import uwsgi tasks
+  ansible.builtin.import_tasks: uwsgi.yml
   tags: [wireguard_openwisp, uwsgi]
 
-- import_tasks: complete.yml
+- name: Import complete tasks
+  ansible.builtin.import_tasks: complete.yml
   tags: [wireguard_openwisp, complete]

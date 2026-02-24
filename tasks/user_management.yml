@@ -1,11 +1,11 @@
 ---
-- name: Create "{{ openwisp_group }}" group
-  group:
+- name: Create openwisp group {{ openwisp_group }}
+  ansible.builtin.group:
     name: "{{ openwisp_group }}"
     state: present
 
-- name: Create "{{ openwisp_user }}" user
-  user:
+- name: Create openwisp user {{ openwisp_user }}
+  ansible.builtin.user:
     name: "{{ openwisp_user }}"
     shell: /sbin/nologin
     state: present
@@ -15,4 +15,4 @@
   ansible.builtin.copy:
     src: "sudoers.d/{{ openwisp_group }}"
     dest: /etc/sudoers.d/openwisp
-    mode: 0440
+    mode: "0440"

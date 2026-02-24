@@ -2,7 +2,8 @@
 - name: Run update_wireguard.sh check_config as openwisp user
   become: true
   become_user: openwisp
-  command: "{{ openwisp2_wireguard_path }}/update_wireguard.sh check_config"
+  ansible.builtin.command: "{{ openwisp2_wireguard_path }}/update_wireguard.sh check_config"
+  changed_when: true
   # Skip this task during molecule tests: the OpenWISP Controller is not available
   # inside the test container, so update_wireguard.sh would fail when attempting
   # to download VPN configuration.
@@ -10,7 +11,7 @@
     - molecule-notest
 
 - name: Show webhook endpoint and webook auth token to use in OpenWISP
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Set the following parametrers in {{ openwisp2_wireguard_controller_url }}/admin/config/vpn/{{ openwisp2_wireguard_vpn_uuid }}/change/"
       - "Webhook Endpoint: https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}"

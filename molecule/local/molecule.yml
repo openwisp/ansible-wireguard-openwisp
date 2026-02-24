@@ -1,10 +1,6 @@
 ---
 driver:
   name: docker
-lint: |
-  set -e
-  yamllint . || true
-  ansible-lint || true
 platforms:
   - name: "openwisp2-ubuntu2004"
     image: "geerlingguy/docker-ubuntu2004-ansible:latest"

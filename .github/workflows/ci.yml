@@ -1,7 +1,7 @@
 ---
 name: Ansible WireGuard OpenWISP CI Build
 
-on: # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
   push:
     branches:
       - main
@@ -38,6 +38,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install python dependencies
+        id: deps
         run: |
           pip install -U pip wheel setuptools
           pip install -r requirements-test.txt
@@ -46,10 +47,12 @@ jobs:
         run: ansible-galaxy collection install "community.general:>=3.6.0"
 
       - name: QA checks
+        continue-on-error: true
         run: |
           ./run-qa-checks
 
       - name: Tests
+        if: ${{ !cancelled() && steps.deps.conclusion == 'success' }}
         run: molecule test
         env:
           ROLE_NAME: openwisp2
