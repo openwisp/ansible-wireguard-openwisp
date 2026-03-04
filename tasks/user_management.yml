@@ -9,10 +9,10 @@
     name: "{{ openwisp_user }}"
     shell: /sbin/nologin
     state: present
-    group: openwisp
+    group: "{{ openwisp_user }}"
 
 - name: Add sudo permissions for Wireguard and Network Manager commands
-  ansible.builtin.copy:
-    src: "sudoers.d/{{ openwisp_group }}"
-    dest: /etc/sudoers.d/openwisp
+  ansible.builtin.template:
+    src: "sudoers.d/openwisp_user"
+    dest: /etc/sudoers.d/{{ openwisp_group }}
     mode: 0440
