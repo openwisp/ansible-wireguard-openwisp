@@ -2,5 +2,8 @@
 
 set -e
 
+yamllint .
+ansible-lint
+
 openwisp-qa-check \
   --skip-checkmigrations

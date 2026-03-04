@@ -1,6 +1,6 @@
 ---
 - name: "[Debian/Ubuntu] Update APT package cache"
-  apt:
+  ansible.builtin.apt:
     update_cache: true
   changed_when: false
   retries: 5
@@ -9,14 +9,14 @@
   until: result is success
 
 - name: "[Debian] Enable backports repository"
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main"
     state: present
     update_cache: true
   when: ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 11
 
 - name: "[Debian/Ubuntu] Install system packages"
-  apt:
+  ansible.builtin.apt:
     name:
       - supervisor
       - openssl
@@ -37,7 +37,8 @@
   until: result is success
 
 - name: "[Debian/Ubuntu] Install acl if acting as non-root user"
-  apt: name=acl
+  ansible.builtin.apt:
+    name: acl
   when: ansible_user is not defined or ansible_user != 'root'
   retries: 5
   delay: 10
@@ -46,13 +47,13 @@
   ignore_errors: true
 
 - name: "[Debian/Ubuntu] Ensure supervisor is started"
-  service:
+  ansible.builtin.service:
     name: supervisor
     state: started
     enabled: true
 
 - name: "[Debian/Ubuntu] Install python3 packages"
-  apt:
+  ansible.builtin.apt:
     name:
       - python3-pip
       - python3-dev
@@ -65,15 +66,15 @@
 - name: "[Debian/Ubuntu] Check virtualenv"
   block:
     - name: "[Debian/Ubuntu] Check virtualenv executable path"
-      command: which virtualenv
+      ansible.builtin.command: which virtualenv
       register: virtualenv_output
       changed_when: false
     - name: "[Debian/Ubuntu] Test virtualenv executable path not empty"
-      fail:
+      ansible.builtin.fail:
       when: virtualenv_output | length == 0
       changed_when: false
   rescue:
     - name: Install virtualenv system package
-      apt:
+      ansible.builtin.apt:
         name: virtualenv
         state: latest

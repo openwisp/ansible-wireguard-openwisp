@@ -13,22 +13,25 @@
     # since the update_wireguard.sh will try to download VPN configuration f
     # rom OpenWISP which is not present here.
     - name: Copy update_wireguard.sh
-      copy:
+      ansible.builtin.copy:
         content: |
           #!/bin/bash
           exit 0
         dest: "{{ openwisp2_wireguard_path }}/update_wireguard.sh"
         group: "{{ openwisp_group }}"
-        mode: 0750
+        mode: "0750"
       tags: [wireguard, updater_script]
-    - name: reload supervisor
-      command: supervisorctl reload
+    - name: Reload supervisor
+      ansible.builtin.command: supervisorctl reload
+      changed_when: true
   tasks:
     - name: Test Flask WireGuard Updater
       block:
         - name: Test with correct auth token
-          uri:
-            url: "https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}?key={{ openwisp2_wireguard_flask_key }}"
+          ansible.builtin.uri:
+            url: >-
+              https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port
+              }}{{ openwisp2_wireguard_flask_endpoint }}?key={{ openwisp2_wireguard_flask_key }}
             validate_certs: false
             method: "POST"
             status_code: [200]
@@ -37,17 +40,20 @@
           retries: 5
           delay: 5
         - name: Test with wrong auth token
-          uri:
-            url: "https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port }}{{ openwisp2_wireguard_flask_endpoint }}?key=wrong-auth-token"
+          ansible.builtin.uri:
+            url: >-
+              https://{{ inventory_hostname }}:{{ openwisp2_wireguard_flask_port
+              }}{{ openwisp2_wireguard_flask_endpoint }}?key=wrong-auth-token
             validate_certs: false
             method: "POST"
             status_code: [403]
       rescue:
         - name: Get Flask log
-          command: "tail -n 500 {{ openwisp2_wireguard_path }}/vpn_updater.log"
+          ansible.builtin.command: "tail -n 500 {{ openwisp2_wireguard_path }}/vpn_updater.log"
           register: flask_log
+          changed_when: false
 
         - name: Show Flask log
-          debug:
+          ansible.builtin.debug:
             var: flask_log
           failed_when: true
