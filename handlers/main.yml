@@ -1,3 +1,10 @@
 ---
-- name: reload supervisor
-  command: supervisorctl reload
+- name: restart wireguard vpn updater
+  command: "supervisorctl restart openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}"
+  register: supervisor_restart
+  failed_when: >
+    supervisor_restart.rc != 0 and
+    'ERROR (no such process)' not in supervisor_restart.stderr
+  changed_when: >
+    supervisor_restart.rc == 0 and
+    'ERROR (no such process)' not in supervisor_restart.stderr

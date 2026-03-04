@@ -55,9 +55,8 @@
         - certbot_check.rc == 0
         - certbot_check.stdout != ""
   tags: [ssl]
-
 - name: uwsgi.ini
-  notify: reload supervisor
+  notify: restart wireguard vpn updater
   template:
     src: flask/uwsgi.ini
     dest: "{{ openwisp2_wireguard_path }}/uwsgi.ini"

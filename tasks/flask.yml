@@ -14,7 +14,7 @@
     group: "{{ openwisp_group }}"
     mode: 0750
   tags: [wireguard, updater_script]
-  notify: reload supervisor
+  notify: restart wireguard vpn updater
 
 - name: Bring up WireGuard interface on boot
   block:
@@ -63,7 +63,7 @@
     mode: 0750
     group: "{{ openwisp_group }}"
   tags: [wireguard, updater_script]
-  notify: reload supervisor
+  notify: restart wireguard vpn updater
 
 - name: Add wireguard_update.sh script to cron
   cron:
@@ -79,7 +79,7 @@
   tags: [wireguard, updater_script]
 
 - name: Deploy VPN updater flask app
-  notify: reload supervisor
+  notify: restart wireguard vpn updater
   template:
     src: flask/vpn_updater.py
     dest: "{{ openwisp2_wireguard_path }}/vpn_updater.py"
@@ -98,5 +98,5 @@
     src: supervisor/vpn_updater.j2
     dest: "{{ supervisor_conf_path }}/flask_vpn_updater_{{ openwisp2_wireguard_vpn_uuid }}.{{ supervisord_conf_extension }}"
     mode: 0744
-  notify: reload supervisor
+  notify: restart wireguard vpn updater
   tags: [flask]
