@@ -19,13 +19,9 @@ jobs:
       matrix:
         include:
           - distro: ubuntu2204
-            ansible_interpreter: /usr/bin/python3
           - distro: ubuntu2404
-            ansible_interpreter: /usr/bin/python3
           - distro: debian11
-            ansible_interpreter: /usr/bin/python3
           - distro: debian12
-            ansible_interpreter: /usr/bin/python3
 
     steps:
       - uses: actions/checkout@v6
@@ -59,4 +55,4 @@ jobs:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ matrix.distro }}
-          ANSIBLE_PYTHON_INTERPRETER: ${{ matrix.ansible_interpreter }}
+          ANSIBLE_PYTHON_INTERPRETER: "/usr/bin/python3"
