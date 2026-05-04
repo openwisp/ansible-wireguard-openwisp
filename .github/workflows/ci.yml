@@ -22,6 +22,7 @@ jobs:
           - distro: ubuntu2404
           - distro: debian11
           - distro: debian12
+          - distro: debian13
 
     steps:
       - uses: actions/checkout@v6
