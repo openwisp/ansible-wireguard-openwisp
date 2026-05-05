@@ -52,7 +52,6 @@
           ansible.builtin.command: "tail -n 500 {{ openwisp2_wireguard_path }}/vpn_updater.log"
           register: flask_log
           changed_when: false
-
         - name: Show Flask log
           ansible.builtin.debug:
             var: flask_log
