@@ -1,6 +1,6 @@
 ---
 
 skip_list:
-  - '303'   # Using command rather than module
-  - '403'   # Package installs should not use latest
-  - '106'   # Role name {} does not match ``^[a-z][a-z0-9_]+$`` pattern'
+  - command-instead-of-module  # Using command rather than module
+  - package-latest  # Package installs should not use latest
+  - role-name  # Role name does not match pattern

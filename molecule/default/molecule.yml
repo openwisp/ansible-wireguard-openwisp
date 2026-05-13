@@ -1,10 +1,6 @@
 ---
 driver:
   name: docker
-lint: |
-  set -e
-  yamllint . || true
-  ansible-lint || true
 platforms:
   - name: "${ROLE_NAME:-instance}-${MOLECULE_DISTRO}"
     image: "geerlingguy/docker-${MOLECULE_DISTRO}-ansible:${tag:-latest}"
@@ -23,8 +19,9 @@ provisioner:
     verify: ../resources/verify.yml
   config_options:
     defaults:
-      stdout_callback: yaml
+      stdout_callback: default
       bin_ansible_callbacks: true
+      callback_result_format: yaml
   inventory:
     host_vars:
       "${ROLE_NAME:-instance}-${MOLECULE_DISTRO}":

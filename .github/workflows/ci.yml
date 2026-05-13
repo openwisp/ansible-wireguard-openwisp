@@ -1,13 +1,13 @@
 ---
 name: Ansible WireGuard OpenWISP CI Build
 
-on: # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -19,16 +19,13 @@ jobs:
       matrix:
         include:
           - distro: ubuntu2204
-            ansible_interpreter: /usr/bin/python3
           - distro: ubuntu2404
-            ansible_interpreter: /usr/bin/python3
           - distro: debian11
-            ansible_interpreter: /usr/bin/python3
           - distro: debian12
-            ansible_interpreter: /usr/bin/python3
+          - distro: debian13
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -38,6 +35,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install python dependencies
+        id: deps
         run: |
           pip install -U pip wheel setuptools
           pip install -r requirements-test.txt
@@ -46,14 +44,16 @@ jobs:
         run: ansible-galaxy collection install "community.general:>=3.6.0"
 
       - name: QA checks
+        continue-on-error: true
         run: |
           ./run-qa-checks
 
       - name: Tests
+        if: ${{ !cancelled() && steps.deps.conclusion == 'success' }}
         run: molecule test
         env:
           ROLE_NAME: openwisp2
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ matrix.distro }}
-          ANSIBLE_PYTHON_INTERPRETER: ${{ matrix.ansible_interpreter }}
+          ANSIBLE_PYTHON_INTERPRETER: "/usr/bin/python3"

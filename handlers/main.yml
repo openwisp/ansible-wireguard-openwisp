@@ -1,3 +1,4 @@
 ---
-- name: reload supervisor
-  command: supervisorctl reload
+- name: Reload supervisor
+  ansible.builtin.command: supervisorctl reload
+  changed_when: true
