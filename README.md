@@ -173,6 +173,10 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_controller_url: "https://openwisp.yourdomain.com"
     # Directory where to install upgrader scripts
     openwisp2_wireguard_path: "/opt/wireguard-openwisp"
+    # Linux group used to run and access the WireGuard updater files
+    openwisp_group: "openwisp"
+    # Linux user used to run the WireGuard updater scripts and Flask app
+    openwisp_user: "openwisp"
     # Allows to download VPN configuration by using "insecure" SSL connections.
     # It is recommended to be left as false.
     openwisp2_wireguard_curl_insecure: false
@@ -243,7 +247,7 @@ Below are listed all the variables you can customize
 Here's how to trigger the configuration check manually if needed:
 
 ```
-sudo -u openwisp /opt/wireguard-openwisp/update_wireguard.sh check_config
+sudo -u <openwisp_user> <openwisp2_wireguard_path>/update_wireguard.sh check_config
 ```
 
 Logs of the application which is responsible to update the wireguard

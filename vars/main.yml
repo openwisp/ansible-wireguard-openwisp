@@ -1,3 +1,2 @@
 ---
 virtualenv_path: "{{ openwisp2_wireguard_path }}/env"
-

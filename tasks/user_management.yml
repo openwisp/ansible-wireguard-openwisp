@@ -14,5 +14,5 @@
 - name: Add sudo permissions for Wireguard and Network Manager commands
   ansible.builtin.template:
     src: "sudoers.d/openwisp_user"
-    dest: /etc/sudoers.d/{{ openwisp_group }}
-    mode: 0440
+    dest: "/etc/sudoers.d/{{ openwisp_group }}"
+    mode: "0440"
