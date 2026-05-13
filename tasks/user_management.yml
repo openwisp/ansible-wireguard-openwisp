@@ -16,3 +16,4 @@
     src: "sudoers.d/openwisp_user"
     dest: "/etc/sudoers.d/{{ openwisp_group }}"
     mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"

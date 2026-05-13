@@ -1,7 +1,6 @@
----
 name: Backport fixes to stable branch
 
-on:  # yamllint disable-line rule:truthy
+on:
   push:
     branches:
       - master
