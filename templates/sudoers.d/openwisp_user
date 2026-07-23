@@ -1,0 +1,1 @@
+%{{ openwisp_group }} ALL = NOPASSWD: /usr/bin/wg-quick, /usr/bin/wg, /usr/bin/nmcli, /usr/bin/ip, /usr/sbin/bridge
