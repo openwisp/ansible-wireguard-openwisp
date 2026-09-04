@@ -1,5 +1,24 @@
 # Changelog
 
+## Version 1.4.0 [2026-09-04]
+
+### Features
+
+- Added support for [customizing the uWSGI configuration](https://github.com/openwisp/ansible-wireguard-openwisp/issues/56).
+
+### Changes
+
+- Added support for Debian 13.
+
+#### Dependencies
+
+- Bumped `Flask` from `~=3.1.1` to
+  [`>=3.1.3,<3.2.0`](https://flask.palletsprojects.com/en/stable/changes/).
+- Bumped `uwsgi` from `~=2.0.30` to
+  [`>=2.0.31,<2.1.0`](https://uwsgi-docs.readthedocs.io/en/latest/Changelog-2.0.31.html).
+- Bumped `Werkzeug` from `~=3.1.3` to
+  [`>=3.1.8,<3.2.0`](https://werkzeug.palletsprojects.com/en/stable/changes/).
+
 ## Version 1.3.1 [2025-09-09]
 
 # Bugfixes
