@@ -25,6 +25,43 @@
       ansible.builtin.command: supervisorctl reload
       changed_when: true
   tasks:
+    - name: Verify configured OpenWISP user and group
+      block:
+        - name: Get configured OpenWISP user
+          ansible.builtin.getent:
+            database: passwd
+            key: "{{ openwisp_user }}"
+        - name: Get configured OpenWISP group
+          ansible.builtin.getent:
+            database: group
+            key: "{{ openwisp_group }}"
+        - name: Assert configured OpenWISP user belongs to configured group
+          ansible.builtin.assert:
+            that:
+              - ansible_facts.getent_passwd[openwisp_user][2] == ansible_facts.getent_group[openwisp_group][1]
+
+    - name: Verify configured OpenWISP paths and permissions
+      block:
+        - name: Stat WireGuard directory
+          ansible.builtin.stat:
+            path: "{{ openwisp2_wireguard_path }}"
+          register: wireguard_path_stat
+        - name: Stat update_wireguard.sh
+          ansible.builtin.stat:
+            path: "{{ openwisp2_wireguard_path }}/update_wireguard.sh"
+          register: update_wireguard_stat
+        - name: Stat configured sudoers file
+          ansible.builtin.stat:
+            path: "/etc/sudoers.d/{{ openwisp_group }}"
+          register: openwisp_sudoers_stat
+        - name: Assert configured OpenWISP paths and permissions
+          ansible.builtin.assert:
+            that:
+              - wireguard_path_stat.stat.gr_name == openwisp_group
+              - update_wireguard_stat.stat.gr_name == openwisp_group
+              - openwisp_sudoers_stat.stat.exists
+              - openwisp_sudoers_stat.stat.mode == "0440"
+
     - name: Test Flask WireGuard Updater
       block:
         - name: Test with correct auth token

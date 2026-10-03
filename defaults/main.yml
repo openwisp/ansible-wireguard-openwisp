@@ -47,3 +47,6 @@ openwisp2_wireguard_ssl_state: "California"
 openwisp2_wireguard_ssl_locality: "San Francisco"
 openwisp2_wireguard_ssl_organization: "IT dep."
 openwisp2_wireguard_ssl_common_name: "{{ inventory_hostname }}"
+
+openwisp_group: "openwisp"
+openwisp_user: "openwisp"
