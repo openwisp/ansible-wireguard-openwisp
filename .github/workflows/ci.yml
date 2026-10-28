@@ -9,6 +9,13 @@ on:  # yamllint disable-line rule:truthy
     branches:
       - master
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.repository }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build ${{ matrix.distro }}
@@ -24,12 +31,13 @@ jobs:
           - distro: debian13
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -40,15 +48,17 @@ jobs:
           pip install -r requirements-test.txt
 
       - name: Install Ansible Galaxy dependencies
+        id: galaxy
         run: ansible-galaxy collection install "community.general:>=3.6.0"
 
       - name: QA checks
+        id: qa
         continue-on-error: true
         run: |
           ./run-qa-checks
 
       - name: Tests
-        if: ${{ !cancelled() && steps.deps.conclusion == 'success' }}
+        if: ${{ !cancelled() && steps.deps.conclusion == 'success' && steps.galaxy.conclusion == 'success' }}
         run: molecule test
         env:
           ROLE_NAME: openwisp2
@@ -56,3 +66,7 @@ jobs:
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ matrix.distro }}
           ANSIBLE_PYTHON_INTERPRETER: "/usr/bin/python3"
+
+      - name: Report QA failure
+        if: ${{ !cancelled() && steps.qa.outcome == 'failure' }}
+        run: exit 1

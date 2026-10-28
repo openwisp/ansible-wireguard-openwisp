@@ -6,21 +6,29 @@ on:  # yamllint disable-line rule:truthy
     types:
       - published
 
+permissions: {}
+
+concurrency:
+  group: publish-${{ github.repository }}-${{ github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   publish:
     name: Publish the role on Ansible Galaxy
+    environment: ansible-galaxy
     runs-on: ubuntu-24.04
-    container: python:3-slim
 
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
       - name: Install ansible
         run: pip install ansible
 
       - name: Update imports on Ansible Galaxy
+        env:
+          GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
         run: |
-          ansible-galaxy role import openwisp ansible-wireguard-openwisp --api-key ${{ secrets.GALAXY_API_KEY }} --role-name wireguard_openwisp
+          ansible-galaxy role import openwisp ansible-wireguard-openwisp --api-key "$GALAXY_API_KEY" --role-name wireguard_openwisp
