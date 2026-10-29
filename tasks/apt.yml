@@ -9,6 +9,39 @@
   until: result is success
 
 
+- name: Configure Python 3.11 on Ubuntu 22.04
+  when:
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution_version == '22.04'
+    - openwisp2_wireguard_python == 'python3.11'
+  block:
+    - name: Check for the deadsnakes signing key
+      ansible.builtin.stat:
+        path: /usr/share/keyrings/openwisp-deadsnakes.asc
+      register: _openwisp_deadsnakes_key
+
+    - name: Download the deadsnakes signing key
+      ansible.builtin.get_url:
+        url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
+        dest: /usr/share/keyrings/openwisp-deadsnakes.asc
+        mode: "0644"
+      when: not _openwisp_deadsnakes_key.stat.exists
+
+    - name: Add the deadsnakes repository
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [signed-by=/usr/share/keyrings/openwisp-deadsnakes.asc]
+          https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main
+        filename: openwisp-deadsnakes
+        update_cache: true
+
+    - name: Install Python 3.11
+      ansible.builtin.apt:
+        name:
+          - python3.11
+          - python3.11-dev
+          - python3.11-venv
+
 - name: "[Debian/Ubuntu] Install system packages"
   ansible.builtin.apt:
     name:

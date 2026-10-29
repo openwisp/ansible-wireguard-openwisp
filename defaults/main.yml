@@ -1,5 +1,5 @@
 ---
-openwisp2_wireguard_python: python3
+openwisp2_wireguard_python: "{{ _openwisp2_wireguard_python | default('python3') }}"
 openwisp2_wireguard_virtualenv_command: "virtualenv"
 
 openwisp2_wireguard_path: "/opt/wireguard-openwisp"
@@ -14,7 +14,7 @@ openwisp2_wireguard_flask_endpoint: "/trigger-update"
 # Set the log level for flask logging.
 # Allowed values are "INFO", "WARNING" and "ERROR"
 openwisp2_wireguard_logging_level: "WARNING"
-openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
+openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_virtualenv_path }}/bin/uwsgi uwsgi.ini"
 openwisp2_wireguard_crontab:
   minute: "*/5"
   hour: "*"

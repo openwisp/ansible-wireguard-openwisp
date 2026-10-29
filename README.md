@@ -13,6 +13,10 @@ This role can also configure scripts to allow OpenWISP manage
 
 Tested on **Debian (Trixie/Bookworm)** and **Ubuntu (24/22 LTS)**.
 
+On Ubuntu 22.04, the role installs Python 3.11 from the
+[deadsnakes PPA](https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa) and
+uses it for the application virtual environment.
+
 **NOTE**: it is highly suggested to use this procedure on clean
 virtual machines or linux containers.
 
@@ -192,7 +196,7 @@ Below are listed all the variables you can customize
     # Allowed values are "INFO", "WARNING" and "ERROR"
     openwisp2_wireguard_logging_level: "WARNING"
     # Command used to run uwsgi from supervisor
-    openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_path }}/env/bin/uwsgi uwsgi.ini"
+    openwisp2_wireguard_uwsgi_command: "{{ openwisp2_wireguard_virtualenv_path }}/bin/uwsgi uwsgi.ini"
     # Crontab time for executing the wireguard update script
     openwisp2_wireguard_crontab:
       # The minute field for the crontab schedule
@@ -216,8 +220,9 @@ Below are listed all the variables you can customize
     openwisp2_wireguard_ssl_locality: "San Francisco"
     openwisp2_wireguard_ssl_organization: "IT dep."
 
-    # by default python3 is used, if may need to set this to python2.7 for older systems
-    openwisp2_wireguard_python: python2.7
+    # Python executable for the application virtual environment
+    # Defaults to python3.11 on Ubuntu 22.04 and python3 on other systems
+    openwisp2_wireguard_python: python3
     # virtualenv command for your remote distribution, usually set automcatically
     openwisp2_wireguard_virtualenv_command: "virtualenv"
 

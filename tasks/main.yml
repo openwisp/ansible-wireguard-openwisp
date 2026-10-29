@@ -9,6 +9,13 @@
   ansible.builtin.import_tasks: user_management.yml
   tags: [wireguard_openwisp, user_management]
 
+- name: Include variables for Ubuntu 22.04
+  ansible.builtin.include_vars: ubuntu-22.yml
+  when:
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution_version == '22.04'
+  tags: [always]
+
 - name: Import APT tasks
   ansible.builtin.import_tasks: apt.yml
   when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"

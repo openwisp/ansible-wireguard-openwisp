@@ -2,7 +2,7 @@
 - name: Verify
   hosts: all
   become: true
-  gather_facts: false
+  gather_facts: true
 
   vars_files:
     - ../vars/main.yml
@@ -25,6 +25,25 @@
       ansible.builtin.command: supervisorctl reload
       changed_when: true
   tasks:
+    - name: Verify Ubuntu 22.04 uses Python 3.11
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - ansible_distribution_version == '22.04'
+      block:
+        - name: Read the application Python version
+          ansible.builtin.command:
+            argv:
+              - "{{ openwisp2_wireguard_path }}/env-python3.11/bin/python"
+              - -c
+              - import sys; print('.'.join(map(str, sys.version_info[:2])))
+          register: wireguard_python_version
+          changed_when: false
+
+        - name: Assert the application uses Python 3.11
+          ansible.builtin.assert:
+            that:
+              - wireguard_python_version.stdout == '3.11'
+
     - name: Test Flask WireGuard Updater
       block:
         - name: Test with correct auth token

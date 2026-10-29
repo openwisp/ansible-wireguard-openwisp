@@ -1,4 +1,7 @@
 ---
-virtualenv_path: "{{ openwisp2_wireguard_path }}/env"
+openwisp2_wireguard_virtualenv_path: >-
+  {{ openwisp2_wireguard_path }}/{{ 'env-python3.11'
+  if ansible_distribution == 'Ubuntu' and ansible_distribution_version == '22.04'
+  and openwisp2_wireguard_python == 'python3.11' else 'env' }}
 openwisp_group: "openwisp"
 openwisp_user: "openwisp"
