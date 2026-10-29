@@ -11,11 +11,12 @@ galaxy_info:
   platforms:
     - name: Debian
       versions:
-        - bullseye
+        - bookworm
+        - trixie
     - name: Ubuntu
       versions:
         - jammy
-        - focal
+        - noble
   galaxy_tags:
     - system
     - networking

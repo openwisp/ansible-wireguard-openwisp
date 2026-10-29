@@ -11,7 +11,7 @@ manual intervention](https://openwisp.io/docs/24.11/controller/user/wireguard.ht
 This role can also configure scripts to allow OpenWISP manage
 [VXLAN over WireGuard](https://openwisp.io/docs/22.05/user/wireguard.html) tunnels.
 
-Tested on **Debian** and **Ubuntu**.
+Tested on **Debian (Trixie/Bookworm)** and **Ubuntu (24/22 LTS)**.
 
 **NOTE**: it is highly suggested to use this procedure on clean
 virtual machines or linux containers.
@@ -291,7 +291,6 @@ docker pull geerlingguy/docker-ubuntu2404-ansible:latest
 docker pull geerlingguy/docker-ubuntu2204-ansible:latest
 docker pull geerlingguy/docker-debian13-ansible:latest
 docker pull geerlingguy/docker-debian12-ansible:latest
-docker pull geerlingguy/docker-debian11-ansible:latest
 ```
 
 **Step 5**: Run molecule test
