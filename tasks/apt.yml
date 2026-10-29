@@ -8,12 +8,6 @@
   register: result
   until: result is success
 
-- name: "[Debian] Enable backports repository"
-  ansible.builtin.apt_repository:
-    repo: "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main"
-    state: present
-    update_cache: true
-  when: ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 11
 
 - name: "[Debian/Ubuntu] Install system packages"
   ansible.builtin.apt:

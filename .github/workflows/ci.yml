@@ -20,7 +20,6 @@ jobs:
         include:
           - distro: ubuntu2204
           - distro: ubuntu2404
-          - distro: debian11
           - distro: debian12
           - distro: debian13
 
