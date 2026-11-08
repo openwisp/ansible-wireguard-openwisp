@@ -1,4 +1,12 @@
 ---
-- name: Reload supervisor
-  ansible.builtin.command: supervisorctl reload
+- name: Update supervisor configuration
+  ansible.builtin.command: supervisorctl update
+  register: supervisord_update
+  changed_when: true
+
+- name: Restart wireguard vpn updater
+  ansible.builtin.command: "supervisorctl restart openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}"
+  when: >
+    supervisord_update is not defined or
+    ("openwisp-flask-vpn-updater-" ~ openwisp2_wireguard_vpn_uuid) not in supervisord_update.stdout
   changed_when: true
