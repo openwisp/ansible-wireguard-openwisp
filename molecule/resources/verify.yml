@@ -21,8 +21,8 @@
         group: "{{ openwisp_group }}"
         mode: "0750"
       tags: [wireguard, updater_script]
-    - name: Reload supervisor
-      ansible.builtin.command: supervisorctl reload
+    - name: Restart wireguard vpn updater
+      ansible.builtin.command: "supervisorctl restart openwisp-flask-vpn-updater-{{ openwisp2_wireguard_vpn_uuid }}"
       changed_when: true
   tasks:
     - name: Verify Ubuntu 22.04 uses Python 3.11

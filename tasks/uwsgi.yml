@@ -59,7 +59,7 @@
         - certbot_check.stdout != ""
 
 - name: Deploy uwsgi.ini
-  notify: Reload supervisor
+  notify: Restart wireguard vpn updater
   ansible.builtin.template:
     src: flask/uwsgi.ini
     dest: "{{ openwisp2_wireguard_path }}/uwsgi.ini"
